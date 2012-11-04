@@ -18,8 +18,9 @@ public class InvertibleBloomFilter {
 		return true;
 	}
 	
-	public boolean find(String key){
-		return true;
+	public int find(String key){
+		return key.hashCode();
+		//return true;
 	}
 
 }
