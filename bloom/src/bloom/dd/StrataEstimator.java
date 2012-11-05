@@ -19,7 +19,7 @@ public class StrataEstimator {
 		estimator = new InvertibleBloomFilter[strata];
 		for(int i = 0; i < strata ;i++){
 			estimator[i] = new InvertibleBloomFilter(size, hashCount);
-			ArrayList<String> sampledFiles = addFiles(files, 1.0/(2^(i+1)) );
+			ArrayList<String> sampledFiles = addFiles(files, 1.0/(Math.pow(2,(i+1))));
 			for (String file : sampledFiles){
 			    estimator[i].insert(file);
 			}

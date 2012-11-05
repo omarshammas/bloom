@@ -19,6 +19,7 @@ public class HashFunction {
 		hashes[2] = (int)(hash % n);
 		return hashes;
 	}
+	
 	private static long fnv1Hash(String string){
 		byte[] data = string.getBytes();
 		BigInteger hash = FNV_OFFSET_BASIS;
@@ -41,7 +42,7 @@ public class HashFunction {
 		return hash.longValue();
 	}
 
-	private static long MurmurHash(String string) {
+	public static long MurmurHash(String string) {
 		// Initialize variables
 		int seed = 283302;
 		byte[] data = string.getBytes();
