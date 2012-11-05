@@ -5,6 +5,7 @@ import bloom.hash.HashFunction;
 public class Main {
 
     public static void main(String[] args) {
+
     	String name = "Tunde";
     	System.out.println(name);
     	int[] hashes = HashFunction.hash(name, 100);

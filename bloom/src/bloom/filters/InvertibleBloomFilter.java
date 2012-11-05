@@ -1,5 +1,7 @@
 package bloom.filters;
 
+import java.util.ArrayList;
+
 public class InvertibleBloomFilter {
 	
 	private int hashCount;
@@ -21,6 +23,10 @@ public class InvertibleBloomFilter {
 	public int find(String key){
 		return key.hashCode();
 		//return true;
+	}
+	
+	public static ArrayList<String>[] subtract(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
+		return (ArrayList<String>[])new ArrayList[2];
 	}
 
 }
