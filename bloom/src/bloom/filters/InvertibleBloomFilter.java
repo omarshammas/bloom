@@ -20,8 +20,9 @@ public class InvertibleBloomFilter {
 		return true;
 	}
 	
-	public boolean find(String key){
-		return true;
+	public int find(String key){
+		return key.hashCode();
+		//return true;
 	}
 	
 	public static ArrayList<String>[] subtract(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
