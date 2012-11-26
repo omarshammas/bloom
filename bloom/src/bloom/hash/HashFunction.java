@@ -93,4 +93,5 @@ public class HashFunction {
 //		return (long)(hash & 0x00000000ffffffffL);
 //	}
 
+
 }
