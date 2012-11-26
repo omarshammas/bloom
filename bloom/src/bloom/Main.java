@@ -8,19 +8,19 @@ public class Main {
 
     	String name = "Tunde";
     	System.out.println(name);
-    	int[] hashes = HashFunction.hash(name, 100);
+    	int[] hashes = HashFunction.hash(name, 4, 100);
     	for(int ii=0; ii < hashes.length; ii++){
     		System.out.println(hashes[ii]);
     	}
     	name = "Omar";
     	System.out.println(name);
-    	hashes = HashFunction.hash(name, 100);
+    	hashes = HashFunction.hash(name, 4, 100);
     	for(int ii=0; ii < hashes.length; ii++){
     		System.out.println(hashes[ii]);
     	}
     	name = "Shashank";
     	System.out.println(name);
-    	hashes = HashFunction.hash(name, 100);
+    	hashes = HashFunction.hash(name, 4, 100);
     	for(int ii=0; ii < hashes.length; ii++){
     		System.out.println(hashes[ii]);
     	}
