@@ -2,7 +2,6 @@ package bloom.filters;
 
 import java.util.ArrayList;
 import bloom.hash.HashFunction;
-import Apache.StringUtils;
 
 public class InvertibleBloomFilter {
 	
@@ -31,7 +30,7 @@ public class InvertibleBloomFilter {
 	}
 	
 	public boolean insert(String key){
-		int[] hashes = HashFunction.hash(key, hashCount);
+		int[] hashes = HashFunction.hash(key, hashCount, size);
 		for (int i : hashes){
 			filter[i].count++;
 			filter[i].idSum = XOR(filter[i].idSum,key);
@@ -51,7 +50,7 @@ public class InvertibleBloomFilter {
 	}
 	
 	public boolean remove(String key){
-		int[] hashes = HashFunction.hash(key, hashCount);
+		int[] hashes = HashFunction.hash(key, hashCount, size);
 		
 		for (int i : hashes){
 			filter[i].count--;
