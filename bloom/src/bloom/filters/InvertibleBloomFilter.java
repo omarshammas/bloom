@@ -9,6 +9,14 @@ public class InvertibleBloomFilter {
 	private int size;
 	private Cell[] filter;
 	
+	public InvertibleBloomFilter(int hashCount, int size){
+		this.hashCount = hashCount;
+		this.size = size;
+		filter = new Cell[size];
+		for(int i=0; i < size; ++i){
+			filter[i] = new Cell();
+		}
+	}
 	
 	public int getSize(){
 		return size;
@@ -26,19 +34,15 @@ public class InvertibleBloomFilter {
 		filter[i] = c;
 	}
 	
-	public static boolean isEquivalent(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
-		return ibf1.getSize() == ibf2.getSize() && ibf1.getHashCount() == ibf2.getHashCount();
-	}
-	
-	public InvertibleBloomFilter(int hashCount, int size){
-		this.hashCount = hashCount;
-		this.size = size;
-		filter = new Cell[size];
-		for(int i=0; i < size; ++i){
-			filter[i] = new Cell();
+	public boolean isEmpty(){
+		for (Cell c : filter){
+			//count can be 0 but elements exist, occurs after a subtraction
+			if (c.count != 0 || c.hashSum != 0)
+				return false;
 		}
+		return true;
 	}
-	
+		
 	public boolean insert(String key){
 		int[] hashes = HashFunction.hash(key, hashCount, size);
 		for (int i : hashes){
@@ -46,8 +50,6 @@ public class InvertibleBloomFilter {
 		}
 		return true;
 	}
-	
-
 	
 	public boolean remove(String key){
 		int[] hashes = HashFunction.hash(key, hashCount, size);
@@ -65,20 +67,6 @@ public class InvertibleBloomFilter {
 				return false;
 		}
 		return true;
-	}
-	
-	
-	public static InvertibleBloomFilter subtract(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
-		assert ibf1.getSize() == ibf2.getSize();
-		assert ibf1.getHashCount() == ibf2.getHashCount();
-		
-		InvertibleBloomFilter diff = new InvertibleBloomFilter(ibf1.getSize(), ibf1.getHashCount());
-		
-		for (int i=0; i < ibf1.getSize(); i++){
-			diff.setCell(i, Cell.subtract(ibf1.getCell(i), ibf2.getCell(i)));
-		}
-		
-		return diff;
 	}
 	
 	public ArrayList<String> getDifference() throws Exception{
@@ -103,6 +91,24 @@ public class InvertibleBloomFilter {
 		return difference;
 	}
 	
+	public static InvertibleBloomFilter subtract(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
+		assert ibf1.getSize() == ibf2.getSize();
+		assert ibf1.getHashCount() == ibf2.getHashCount();
+		
+		InvertibleBloomFilter diff = new InvertibleBloomFilter(ibf1.getSize(), ibf1.getHashCount());
+		
+		for (int i=0; i < ibf1.getSize(); i++){
+			diff.setCell(i, Cell.subtract(ibf1.getCell(i), ibf2.getCell(i)));
+		}
+		
+		return diff;
+	}
+	
+	public static boolean isEquivalent(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
+		return ibf1.getSize() == ibf2.getSize() && ibf1.getHashCount() == ibf2.getHashCount();
+	}
+	
+	
 	private ArrayList<Integer> getPureCells(){
 		ArrayList<Integer> pureCells = new ArrayList<Integer>();
 		for (int i=0; i < size; ++i){
@@ -114,14 +120,5 @@ public class InvertibleBloomFilter {
 	
 	private String getKey(int index){
 		return getCell(index).idSum;
-	}
-	
-	public boolean isEmpty(){
-		for (Cell c : filter){
-			//count can be 0 but elements exist, occurs after a subtraction
-			if (c.count != 0 || c.hashSum != 0)
-				return false;
-		}
-		return true;
 	}
 }

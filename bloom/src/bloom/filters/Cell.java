@@ -2,9 +2,9 @@ package bloom.filters;
 
 public class Cell {
 
-	protected byte count;
-	protected String idSum;
-	protected int hashSum;
+	public byte count;
+	public String idSum;
+	public int hashSum;
 	
 	public Cell(){
 		count = 0;
