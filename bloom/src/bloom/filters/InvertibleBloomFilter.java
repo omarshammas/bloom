@@ -69,20 +69,25 @@ public class InvertibleBloomFilter {
 		return true;
 	}
 	
+	//TODO this function is destructive, either change or emphasize
 	public ArrayList<String> getDifference() throws Exception{
 		
 		ArrayList<String> difference = new ArrayList<String>();
 		ArrayList<Integer> pureCells = new ArrayList<Integer>();
 		Integer index;
 		String key;
-		
-		do {
-			pureCells = getPureCells();
+
+		pureCells = getPureCells();
+		while (!pureCells.isEmpty()){
 			index = pureCells.remove(pureCells.size() - 1);
 			key = getKey(index);
 			remove(key);
 			difference.add(key);
-		} while (!pureCells.isEmpty());
+			System.out.println(pureCells.size());
+			System.out.println(key);
+			
+			pureCells = getPureCells();
+		}
 
 		
 		if (!isEmpty())

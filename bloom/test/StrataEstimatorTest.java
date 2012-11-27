@@ -36,7 +36,7 @@ public class StrataEstimatorTest {
 			difference = StrataEstimator.estimateDifference(se1, se2);
 		} catch (Exception e) {
 			e.printStackTrace();
-			assert(false);
+			fail("Failed to estimate the difference");
 		}
 		
 		System.out.println(difference);
@@ -51,7 +51,7 @@ public class StrataEstimatorTest {
 			difference = StrataEstimator.estimateDifference(se1, se3);
 		} catch (Exception e) {
 			e.printStackTrace();
-			assert(false);
+			fail("Failed to estimate the difference");
 		}
 		
 		System.out.println(difference);
