@@ -76,16 +76,13 @@ public class InvertibleBloomFilter {
 		ArrayList<Integer> pureCells = new ArrayList<Integer>();
 		Integer index;
 		String key;
-
+			
 		pureCells = getPureCells();
 		while (!pureCells.isEmpty()){
 			index = pureCells.remove(pureCells.size() - 1);
 			key = getKey(index);
 			remove(key);
 			difference.add(key);
-			System.out.println(pureCells.size());
-			System.out.println(key);
-			
 			pureCells = getPureCells();
 		}
 
@@ -100,11 +97,10 @@ public class InvertibleBloomFilter {
 		assert ibf1.getSize() == ibf2.getSize();
 		assert ibf1.getHashCount() == ibf2.getHashCount();
 		
-		InvertibleBloomFilter diff = new InvertibleBloomFilter(ibf1.getSize(), ibf1.getHashCount());
+		InvertibleBloomFilter diff = new InvertibleBloomFilter(ibf1.getHashCount(), ibf1.getSize());
 		
-		for (int i=0; i < ibf1.getSize(); i++){
+		for (int i=0; i < ibf1.getSize(); ++i)
 			diff.setCell(i, Cell.subtract(ibf1.getCell(i), ibf2.getCell(i)));
-		}
 		
 		return diff;
 	}
@@ -124,6 +120,6 @@ public class InvertibleBloomFilter {
 	}
 	
 	private String getKey(int index){
-		return getCell(index).idSum;
+		return getCell(index).extractPure();
 	}
 }
