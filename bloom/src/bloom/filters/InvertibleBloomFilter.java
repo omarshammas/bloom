@@ -2,72 +2,89 @@ package bloom.filters;
 
 import java.util.ArrayList;
 import bloom.hash.HashFunction;
-import Apache.StringUtils;
 
 public class InvertibleBloomFilter {
 	
 	private int hashCount;
 	private int size;
-	private class cell{
-		protected byte count;
-		protected String idSum;
-		protected int hashSum;
-		
-		public cell(){
-			count = 0;
-			idSum = "                    ";
-			hashSum = 0;
-		}
+	private Cell[] filter;
+	
+	
+	public int getSize(){
+		return size;
 	}
-	private cell[] filter;
+	
+	public int getHashCount(){
+		return hashCount;
+	}
+	
+	public cell getCell(int i){
+		return filter[i];
+	}
+	
+	public void setCell(int i, Cell c){
+		filter[i] = c;
+	}
+	
+	public static boolean isEquivalent(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
+		return ibf1.getSize() == ibf2.getSize() && ibf1.getHashCount() == ibf2.getHashCount();
+	}
 	
 	public InvertibleBloomFilter(int hashCount, int size){
 		this.hashCount = hashCount;
 		this.size = size;
-		filter = new cell[size];
-		for (cell c : filter){
+		filter = new Cell[size];
+		for (Cell c : filter){
 			c = new cell();
 		}
 	}
 	
 	public boolean insert(String key){
-		int[] hashes = HashFunction.hash(key, hashCount);
+		int[] hashes = HashFunction.hash(key, hashCount, size);
 		for (int i : hashes){
-			filter[i].count++;
-			filter[i].idSum = XOR(filter[i].idSum,key);
-			filter[i].hashSum = filter[i].hashSum ^ key.hashCode();
+			filter[i].add(key);
 		}
 		return true;
 	}
 	
-	private String XOR(String s1, String s2) {
-		StringBuilder sb = new StringBuilder();
-		assert s1.length() == s2.length(); //TODO replace with exception
-		
-		for(int i=0; i<s1.length() && i<s2.length();i++)
-		    sb.append((char)(s1.charAt(i) ^ s2.charAt(i)));
-		String result = sb.toString();
-		return result;
-	}
+
 	
 	public boolean remove(String key){
-		int[] hashes = HashFunction.hash(key, hashCount);
+		int[] hashes = HashFunction.hash(key, hashCount, size);
 		
 		for (int i : hashes){
-			filter[i].count--;
-			filter[i].idSum = XOR(filter[i].idSum,key);
-			filter[i].hashSum = filter[i].hashSum ^ key.hashCode();
+			filter[i].remove(key);
 		}
 		return true;
 	}
 	
-	public int find(String key){
-		return key.hashCode();
-		//return true;
+	public boolean find(String key){
+		int[] hashes = HashFunction.hash(key, hashCount, size);
+		for (int i : hashes){
+			if (filter[i].count < 1)
+				return false;
+		}
+		return true;
 	}
 	
-	public static ArrayList<String>[] subtract(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
-		return (ArrayList<String>[])new ArrayList[2];
+	public InvertibleBloomFilter subtract(InvertibleBloomFilter ibf){
+		
+		InvertibleBloomFilter diff = new InvertibleBloomFilter(hashCount, size);
+		
+		for (int i=0; i < size; ++i){
+			diff.setCell( filter[i].cell.subtract(ibf.getCell(i)))
+		}
+		
+		return ibf;
+	}
+	
+	public static InvertibleBloomFilter subtract(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
+		assert ibf1.getSize() == ibf2.getSize();
+		assert ibf1.getHashCount() == ibf2.getHashCount();
+		
+		InvertibleBloomFilter diff = new InvertibleBloomFilter(ibf1., size);
+		
+		
 	}
 
 }
