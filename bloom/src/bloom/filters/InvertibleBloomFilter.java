@@ -1,6 +1,6 @@
 package bloom.filters;
 
-import java.util.ArrayList;
+import java.util.*;
 import bloom.hash.HashFunction;
 
 public class InvertibleBloomFilter {
@@ -18,7 +18,7 @@ public class InvertibleBloomFilter {
 		return hashCount;
 	}
 	
-	public cell getCell(int i){
+	public Cell getCell(int i){
 		return filter[i];
 	}
 	
@@ -34,8 +34,8 @@ public class InvertibleBloomFilter {
 		this.hashCount = hashCount;
 		this.size = size;
 		filter = new Cell[size];
-		for (Cell c : filter){
-			c = new cell();
+		for(int i=0; i < size; ++i){
+			filter[i] = new Cell();
 		}
 	}
 	
@@ -67,24 +67,61 @@ public class InvertibleBloomFilter {
 		return true;
 	}
 	
-	public InvertibleBloomFilter subtract(InvertibleBloomFilter ibf){
-		
-		InvertibleBloomFilter diff = new InvertibleBloomFilter(hashCount, size);
-		
-		for (int i=0; i < size; ++i){
-			diff.setCell( filter[i].cell.subtract(ibf.getCell(i)))
-		}
-		
-		return ibf;
-	}
 	
 	public static InvertibleBloomFilter subtract(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
 		assert ibf1.getSize() == ibf2.getSize();
 		assert ibf1.getHashCount() == ibf2.getHashCount();
 		
-		InvertibleBloomFilter diff = new InvertibleBloomFilter(ibf1., size);
+		InvertibleBloomFilter diff = new InvertibleBloomFilter(ibf1.getSize(), ibf1.getHashCount());
 		
+		for (int i=0; i < ibf1.getSize(); i++){
+			diff.setCell(i, Cell.subtract(ibf1.getCell(i), ibf2.getCell(i)));
+		}
 		
+		return diff;
 	}
+	
+	public ArrayList<String> getDifference() throws Exception{
+		
+		ArrayList<String> difference = new ArrayList<String>();
+		ArrayList<Integer> pureCells = new ArrayList<Integer>();
+		Integer index;
+		String key;
+		
+		do {
+			pureCells = getPureCells();
+			index = pureCells.remove(pureCells.size() - 1);
+			key = getKey(index);
+			remove(key);
+			difference.add(key);
+		} while (!pureCells.isEmpty());
 
+		
+		if (!isEmpty())
+			throw new Exception("Unable to determine difference.");
+		
+		return difference;
+	}
+	
+	private ArrayList<Integer> getPureCells(){
+		ArrayList<Integer> pureCells = new ArrayList<Integer>();
+		for (int i=0; i < size; ++i){
+			if (getCell(i).count == -1 || getCell(i).count == 1 )
+				pureCells.add(i);
+		}
+		return pureCells;
+	}
+	
+	private String getKey(int index){
+		return getCell(index).idSum;
+	}
+	
+	public boolean isEmpty(){
+		for (Cell c : filter){
+			//count can be 0 but elements exist, occurs after a subtraction
+			if (c.count != 0 || c.hashSum != 0)
+				return false;
+		}
+		return true;
+	}
 }

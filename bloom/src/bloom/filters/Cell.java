@@ -25,7 +25,7 @@ public class Cell {
 		hashSum = hashSum ^ key.hashCode();
 	}
 	
-	public Cell subtract(Cell c1, Cell c2){
+	public static Cell subtract(Cell c1, Cell c2){
 		Cell c = new Cell();
 		c.count = (byte) (c1.count - c2.count);
 		c.idSum = XOR(c1.idSum, c2.idSum);
@@ -33,7 +33,7 @@ public class Cell {
 		return c;
 	}
 	
-	private String XOR(String s1, String s2) {
+	private static String XOR(String s1, String s2) {
 		StringBuilder sb = new StringBuilder();
 		assert s1.length() == s2.length(); //TODO replace with exception
 		
