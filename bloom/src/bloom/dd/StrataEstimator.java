@@ -25,7 +25,7 @@ public class StrataEstimator {
 		this.strata = strata;
 		estimator = new InvertibleBloomFilter[strata];
 		for(int i = 0; i < strata ;i++){
-			estimator[i] = new InvertibleBloomFilter(size, hashCount);
+			estimator[i] = new InvertibleBloomFilter(hashCount, size);
 			ArrayList<String> sampledFiles = addFiles(files, 1.0/Math.pow(2,i+1));
 			for (String file : sampledFiles){
 			    estimator[i].insert(file);
@@ -95,8 +95,14 @@ public class StrataEstimator {
 			} catch (Exception e) {
 				continue;
 			}
+			
+			if (decoded)
+				d += difference.size();
+			else
+				d = (int) (Math.pow(2, i)*difference.size());
+			
 			decoded = true;
-			d += Math.pow(2, i)*(difference.size());
+			System.out.println(i + " " + difference.size() + " " + d );
 		}		
 		
 		if (!decoded)
