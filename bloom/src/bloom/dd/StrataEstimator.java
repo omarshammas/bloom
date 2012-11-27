@@ -41,6 +41,10 @@ public class StrataEstimator {
 		return strata;
 	}
 	
+	public int getHashCount(){
+		return hashCount;
+	}
+	
 	public InvertibleBloomFilter getIBF(int index){
 		assert index <= strata; //TODO throw exception
 		return estimator[index];

@@ -9,6 +9,14 @@ public class InvertibleBloomFilter {
 	private int size;
 	private Cell[] filter;
 	
+	public InvertibleBloomFilter(int hashCount, int size){
+		this.hashCount = hashCount;
+		this.size = size;
+		filter = new Cell[size];
+		for(int i=0; i < size; ++i){
+			filter[i] = new Cell();
+		}
+	}
 	
 	public int getSize(){
 		return size;
@@ -26,19 +34,15 @@ public class InvertibleBloomFilter {
 		filter[i] = c;
 	}
 	
-	public static boolean isEquivalent(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
-		return ibf1.getSize() == ibf2.getSize() && ibf1.getHashCount() == ibf2.getHashCount();
-	}
-	
-	public InvertibleBloomFilter(int hashCount, int size){
-		this.hashCount = hashCount;
-		this.size = size;
-		filter = new Cell[size];
-		for(int i=0; i < size; ++i){
-			filter[i] = new Cell();
+	public boolean isEmpty(){
+		for (Cell c : filter){
+			//count can be 0 but elements exist, occurs after a subtraction
+			if (c.count != 0 || c.hashSum != 0)
+				return false;
 		}
+		return true;
 	}
-	
+		
 	public boolean insert(String key){
 		int[] hashes = HashFunction.hash(key, hashCount, size);
 		for (int i : hashes){
@@ -46,8 +50,6 @@ public class InvertibleBloomFilter {
 		}
 		return true;
 	}
-	
-
 	
 	public boolean remove(String key){
 		int[] hashes = HashFunction.hash(key, hashCount, size);
@@ -67,6 +69,32 @@ public class InvertibleBloomFilter {
 		return true;
 	}
 	
+	//TODO this function is destructive, either change or emphasize
+	public ArrayList<String> getDifference() throws Exception{
+		
+		ArrayList<String> difference = new ArrayList<String>();
+		ArrayList<Integer> pureCells = new ArrayList<Integer>();
+		Integer index;
+		String key;
+
+		pureCells = getPureCells();
+		while (!pureCells.isEmpty()){
+			index = pureCells.remove(pureCells.size() - 1);
+			key = getKey(index);
+			remove(key);
+			difference.add(key);
+			System.out.println(pureCells.size());
+			System.out.println(key);
+			
+			pureCells = getPureCells();
+		}
+
+		
+		if (!isEmpty())
+			throw new Exception("Unable to determine difference.");
+		
+		return difference;
+	}
 	
 	public static InvertibleBloomFilter subtract(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
 		assert ibf1.getSize() == ibf2.getSize();
@@ -81,27 +109,10 @@ public class InvertibleBloomFilter {
 		return diff;
 	}
 	
-	public ArrayList<String> getDifference() throws Exception{
-		
-		ArrayList<String> difference = new ArrayList<String>();
-		ArrayList<Integer> pureCells = new ArrayList<Integer>();
-		Integer index;
-		String key;
-		
-		do {
-			pureCells = getPureCells();
-			index = pureCells.remove(pureCells.size() - 1);
-			key = getKey(index);
-			remove(key);
-			difference.add(key);
-		} while (!pureCells.isEmpty());
-
-		
-		if (!isEmpty())
-			throw new Exception("Unable to determine difference.");
-		
-		return difference;
+	public static boolean isEquivalent(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
+		return ibf1.getSize() == ibf2.getSize() && ibf1.getHashCount() == ibf2.getHashCount();
 	}
+	
 	
 	private ArrayList<Integer> getPureCells(){
 		ArrayList<Integer> pureCells = new ArrayList<Integer>();
@@ -114,14 +125,5 @@ public class InvertibleBloomFilter {
 	
 	private String getKey(int index){
 		return getCell(index).idSum;
-	}
-	
-	public boolean isEmpty(){
-		for (Cell c : filter){
-			//count can be 0 but elements exist, occurs after a subtraction
-			if (c.count != 0 || c.hashSum != 0)
-				return false;
-		}
-		return true;
 	}
 }
