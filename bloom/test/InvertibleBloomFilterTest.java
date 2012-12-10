@@ -1,20 +1,26 @@
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.Test;
 
-import bloom.filters.Cell;
+import com.sun.tools.javac.code.Attribute.Array;
+
 import bloom.filters.InvertibleBloomFilter;
+import bloom.hash.HashFunction;
 
 
 public class InvertibleBloomFilterTest {
 	
 	static int HASH_COUNT = 3;
-	static int SIZE = 100;
+	static int SIZE = 1000;
 	static String KEY = "teststring";
-	static int NUMBER_OF_FILES = 10;
+	static int NUMBER_OF_FILES = 100;
 	
 	@Test
 	public void testConstructor() {
@@ -69,19 +75,35 @@ public class InvertibleBloomFilterTest {
 	
 	@Test
 	public void testGetDifferenceWithMultipleItems() {
-		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE);
-		
-		String[] files = createFileNames(NUMBER_OF_FILES);
-		for (String s : files)
-			ibf.insert(s);
-		
-		try {
-			ArrayList<String> difference = ibf.getDifference();
-			assertEquals(NUMBER_OF_FILES, difference.size());
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Failed to get the difference");
-		}	
+		int counter = 0;
+		for(int i=0; i < 1000; ++i){
+			//size = 1.5d
+			int size = (int) (NUMBER_OF_FILES*1.5);
+			InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, size);
+			
+			ArrayList<String> files = createFileNames(NUMBER_OF_FILES);
+			Set<String> already = new HashSet<String>();
+			for (String s : files){
+				if (!already.contains(s)){
+					ibf.insert(s);
+					already.add(s);
+				}
+			}
+								
+			try {
+				ArrayList<String> difference = ibf.getDifference();
+				assertEquals(NUMBER_OF_FILES, difference.size());
+				Collections.sort(files);
+				Collections.sort(difference);
+				assertEquals(true, files.equals(difference));
+				
+			} catch (Exception e) {
+//				e.printStackTrace();
+//				fail("Failed to get the difference");
+				counter ++;
+			}
+		}
+		System.out.println("Unable to decode "+counter+" times out of 1000");
 	}
 
 	@Test
@@ -117,11 +139,11 @@ public class InvertibleBloomFilterTest {
 		assertEquals(true, InvertibleBloomFilter.isEquivalent(ibf1, ibf2));		
 	}
 	
-	private String[] createFileNames(int number){
-		String[] files = new String[number];
+	private ArrayList<String> createFileNames(int number){
+		ArrayList<String> files = new ArrayList<String>(number);
 		
 		for (int i=0; i < number; ++i){
-			files[i] = UUID.randomUUID().toString().substring(0,10);
+			files.add( UUID.randomUUID().toString().substring(0,10) );
 		}
 		
 		return files;

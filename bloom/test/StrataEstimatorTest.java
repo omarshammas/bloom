@@ -9,10 +9,11 @@ import bloom.dd.StrataEstimator;
 
 public class StrataEstimatorTest {
 
-	static int SIZE = 100;
+	
 	static int HASH_COUNT = 3;
 	static int STRATA = 5;
-	static int NUMBER_OF_FILES = 10;
+	static int NUMBER_OF_FILES = 100;
+	static int SIZE = (int) (HASH_COUNT*NUMBER_OF_FILES/Math.log(2)); 
 	
 	
 	@Test
