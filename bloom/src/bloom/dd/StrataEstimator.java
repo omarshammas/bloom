@@ -43,7 +43,7 @@ public class StrataEstimator {
 	}
 	
 	private int getNumberOfTrailingZeros(String file){
-		int hashCode =  (int) (HashFunction.MurmurHash(file)%Math.pow(2,STRATA));
+		int hashCode =  (int) (HashFunction.fnv1Hash(file)%Math.pow(2,STRATA));
 		int counter = STRATA-1;
 		while (hashCode > 0){
 			hashCode = hashCode/2;

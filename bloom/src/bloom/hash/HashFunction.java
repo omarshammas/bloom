@@ -33,7 +33,7 @@ public class HashFunction {
 		return (int)(((axb % P)+P)%P);
 	}
 	
-	private static long fnv1Hash(String string){
+	public static long fnv1Hash(String string){
 		byte[] data = string.getBytes();
 		BigInteger hash = FNV_OFFSET_BASIS;
 		for(int ii = 0; ii < data.length; ii++){
