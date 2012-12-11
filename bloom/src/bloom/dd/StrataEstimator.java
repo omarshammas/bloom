@@ -88,11 +88,14 @@ public class StrataEstimator {
 		boolean decoded = false;
 		for(int i=0; i < strata; i++){
 			
+			System.out.print(i);
 			ibf = InvertibleBloomFilter.subtract(se1.getIBF(i) , se2.getIBF(i));
 			
 			try {
 				difference = ibf.getDifference();
+				System.out.println(" - decoded");
 			} catch (Exception e) {
+				System.out.println(" - unable to decode");
 				continue;
 			}
 			

@@ -1,6 +1,7 @@
 package bloom.filters;
 
 import java.util.*;
+
 import bloom.hash.HashFunction;
 
 public class InvertibleBloomFilter {
@@ -37,14 +38,16 @@ public class InvertibleBloomFilter {
 	public boolean isEmpty(){
 		for (Cell c : filter){
 			//count can be 0 but elements exist, occurs after a subtraction
-			if (c.count != 0 || c.hashSum != 0)
+			if (!c.isEmpty()){
 				return false;
+			}
 		}
 		return true;
 	}
 		
 	public boolean insert(String key){
 		int[] hashes = HashFunction.hash(key, hashCount, size);
+		
 		for (int i : hashes){
 			filter[i].add(key);
 		}
@@ -75,27 +78,32 @@ public class InvertibleBloomFilter {
 		ArrayList<String> difference = new ArrayList<String>();
 		ArrayList<Integer> pureCells = new ArrayList<Integer>();
 		Integer index;
-		String key;
+		String key, prior;
 			
+		int counter = 0;
 		pureCells = getPureCells();
 		while (!pureCells.isEmpty()){
+			prior = pureCells.toString();
 			index = pureCells.remove(pureCells.size() - 1);
 			key = getKey(index);
 			remove(key);
 			difference.add(key);
 			pureCells = getPureCells();
+			assert prior.equals(pureCells.toString());
+			counter++;
+			if (counter > 100)
+				break;
 		}
 
 		
 		if (!isEmpty())
-			throw new Exception("Unable to determine difference.");
+			throw new Exception("Unable to determine difference after " + counter +" tries.");
 		
 		return difference;
 	}
 	
 	public static InvertibleBloomFilter subtract(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
-		assert ibf1.getSize() == ibf2.getSize();
-		assert ibf1.getHashCount() == ibf2.getHashCount();
+		assert isEquivalent(ibf1, ibf2);
 		
 		InvertibleBloomFilter diff = new InvertibleBloomFilter(ibf1.getHashCount(), ibf1.getSize());
 		
@@ -110,10 +118,11 @@ public class InvertibleBloomFilter {
 	}
 	
 	
-	private ArrayList<Integer> getPureCells(){
+	//TODO make private
+	public ArrayList<Integer> getPureCells(){
 		ArrayList<Integer> pureCells = new ArrayList<Integer>();
 		for (int i=0; i < size; ++i){
-			if (getCell(i).count == -1 || getCell(i).count == 1 )
+			if (getCell(i).isPure())
 				pureCells.add(i);
 		}
 		return pureCells;
