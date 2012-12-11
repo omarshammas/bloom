@@ -10,6 +10,11 @@ public class InvertibleBloomFilter {
 	private int size;
 	private Cell[] filter;
 	
+	//TODO Remove, just used for debugging
+	private int counter;
+	private ArrayList<String> files;
+	
+	
 	public InvertibleBloomFilter(int hashCount, int size){
 		this.hashCount = hashCount;
 		this.size = size;
@@ -17,6 +22,10 @@ public class InvertibleBloomFilter {
 		for(int i=0; i < size; ++i){
 			filter[i] = new Cell();
 		}
+		
+		//TODO Remove, just used for debugging
+		this.counter = 0;
+		this.files = new ArrayList<String>();
 	}
 	
 	public int getSize(){
@@ -35,6 +44,23 @@ public class InvertibleBloomFilter {
 		filter[i] = c;
 	}
 	
+	//TODO Remove, just used for debugging
+	public int getCounter(){
+		return counter;
+	}
+	/*
+	//TODO Remove, just used for debugging
+	public ArrayList<String> getFiles(){
+		return files;
+	}*/
+	
+	//TODO Remove, just used for debugging
+		public void printShit(){
+			Collections.sort(files);
+			System.out.println("Number of elements : "+counter);
+			//System.out.println(files);
+		}
+	
 	public boolean isEmpty(){
 		for (Cell c : filter){
 			//count can be 0 but elements exist, occurs after a subtraction
@@ -46,6 +72,10 @@ public class InvertibleBloomFilter {
 	}
 		
 	public boolean insert(String key){
+		//TODO Remove, just used for debugging
+		this.counter++;
+		//this.files.add(key);
+		
 		int[] hashes = HashFunction.hash(key, hashCount, size);
 		
 		for (int i : hashes){
@@ -54,7 +84,11 @@ public class InvertibleBloomFilter {
 		return true;
 	}
 	
-	public boolean remove(String key){
+	public boolean remove(String key){		
+		//TODO Remove, just used for debugging
+		this.counter--;
+		//this.files.remove(key);
+				
 		int[] hashes = HashFunction.hash(key, hashCount, size);
 		
 		for (int i : hashes){

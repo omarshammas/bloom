@@ -1,5 +1,7 @@
 package bloom;
 
+import java.util.ArrayList;
+
 import bloom.dd.StrataEstimator;
 import bloom.hash.HashFunction;
 
@@ -27,10 +29,10 @@ public class Main {
     	}
     	
     	int size = 100;
-    	String[] files = new String[3];
-    	files[0] = "Omar Shamm";
-    	files[1] = "Sunkavalli";
-    	files[2] = "Tunde Agbo";
+    	ArrayList<String> files = new ArrayList<String>();
+    	files.add("Omar Shamm");
+    	files.add("Tunde Agbo");
+    	files.add("Sunkavalli");
     	
     	StrataEstimator s1 = new StrataEstimator(size, files);
     	StrataEstimator s2 = new StrataEstimator(size, files);

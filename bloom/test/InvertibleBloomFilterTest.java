@@ -1,18 +1,15 @@
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 import org.junit.Test;
 
-import com.sun.tools.javac.code.Attribute.Array;
-
 import bloom.filters.InvertibleBloomFilter;
-import bloom.hash.HashFunction;
 
 
 public class InvertibleBloomFilterTest {
@@ -81,21 +78,22 @@ public class InvertibleBloomFilterTest {
 			int size = (int) (NUMBER_OF_FILES*1.5);
 			InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, size);
 			
-			ArrayList<String> files = createFileNames(NUMBER_OF_FILES);
-			Set<String> already = new HashSet<String>();
+			Set<String> files = createFileNames(NUMBER_OF_FILES);
 			for (String s : files){
-				if (!already.contains(s)){
-					ibf.insert(s);
-					already.add(s);
-				}
+				ibf.insert(s);
 			}
 								
 			try {
 				ArrayList<String> difference = ibf.getDifference();
 				assertEquals(NUMBER_OF_FILES, difference.size());
-				Collections.sort(files);
+				
+				ArrayList<String> files_list = new ArrayList<String>();
+				for (String s : files)
+					files_list.add(s);
+				
+				Collections.sort(files_list);
 				Collections.sort(difference);
-				assertEquals(true, files.equals(difference));
+				assertEquals(true, files_list.equals(difference));
 				
 			} catch (Exception e) {
 //				e.printStackTrace();
@@ -130,6 +128,47 @@ public class InvertibleBloomFilterTest {
 	}
 	
 	@Test
+	public void testSubstractWithMultipleItems() {
+		//size = 1.5d
+		int size = (int) (NUMBER_OF_FILES*1.5);
+		InvertibleBloomFilter ibf1 = new InvertibleBloomFilter(HASH_COUNT, size);
+		InvertibleBloomFilter ibf2 = new InvertibleBloomFilter(HASH_COUNT, size);
+		InvertibleBloomFilter ibf3 = new InvertibleBloomFilter(HASH_COUNT, size);
+		
+		Set<String> files = createFileNames(NUMBER_OF_FILES);
+		for (String s : files){
+			ibf1.insert(s);
+			ibf2.insert(s);
+		}
+		
+		InvertibleBloomFilter ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
+		try {
+			assertEquals(0, ibf_sub.getDifference().size());
+		} catch (Exception e) {
+			fail("Failed to get the difference");
+		}		
+		
+		Random rand = new Random();
+		int counter = 0, num = rand.nextInt(NUMBER_OF_FILES);
+		for (String s : files){
+			if (counter >= num)
+				break;
+			
+			ibf3.insert(s);
+			counter++;
+		}
+		
+		ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf3);
+		try {
+			ArrayList<String> difference = ibf_sub.getDifference();
+			assertEquals(NUMBER_OF_FILES-num, difference.size());
+		} catch (Exception e) {
+			fail("Failed to get the difference");
+		}		
+		
+	}
+	
+	@Test
 	public void testIsEquivalent(){
 		InvertibleBloomFilter ibf1 = new InvertibleBloomFilter(HASH_COUNT, SIZE);
 		InvertibleBloomFilter ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE);
@@ -139,11 +178,11 @@ public class InvertibleBloomFilterTest {
 		assertEquals(true, InvertibleBloomFilter.isEquivalent(ibf1, ibf2));		
 	}
 	
-	private ArrayList<String> createFileNames(int number){
-		ArrayList<String> files = new ArrayList<String>(number);
+	private Set<String> createFileNames(int number){
+		Set<String> files = new HashSet<String>(number);
 		
-		for (int i=0; i < number; ++i){
-			files.add( UUID.randomUUID().toString().substring(0,10) );
+		while (files.size() < number){
+			files.add( UUID.randomUUID().toString().substring(0,10) );	
 		}
 		
 		return files;
