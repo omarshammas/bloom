@@ -1,22 +1,36 @@
 package bloom.hash;
 
 import java.math.BigInteger;
+import java.util.Random;
 
 public class HashFunction {
 
 	private static final BigInteger FNV_PRIME =  new BigInteger("16777619");
 	private static final BigInteger FNV_OFFSET_BASIS = new BigInteger("2166136261");
 	private static final BigInteger MOD = new BigInteger("4294967296");
+	private static final int P = 2147483647;
 	
+	public static int hash(String key, int m){
+		return (int)(MurmurHash(key) % m);
+	}
 	
-	public static int[] hash(String string,int numberOfHashes, int m){
+	public static int[] hash(String key,int numberOfHashes, int m){
 		int[] hashes = new int[numberOfHashes];
 		for(int ii = 0; ii < numberOfHashes; ii++){
-			long h1 = fnv1Hash(string);
-			long h2 = fnv1aHash(string);
-			hashes[ii] = (int)((h1+ii*h2) % m);
+			long h1 = fnv1Hash(key);
+			long h2 = MurmurHash(key);
+			long axb = h1+(ii*h2);
+			hashes[ii] = (int)(axb % m);
 		}
 		return hashes;
+	}
+	
+	public static int minWiseHash(int hashCode, int k){
+		Random random = new Random(k);
+		long a = random.nextInt(Integer.MAX_VALUE-1)+1;
+		long b = random.nextInt(Integer.MAX_VALUE);
+		long axb = a * hashCode + b;
+		return (int)(((axb % P)+P)%P);
 	}
 	
 	private static long fnv1Hash(String string){
@@ -26,17 +40,6 @@ public class HashFunction {
 			int intOctet = data[ii] & 0xff;
 			hash = hash.multiply(FNV_PRIME).mod(MOD);
 			hash = hash.xor(BigInteger.valueOf(intOctet));
-		}
-		return hash.longValue();
-	}
-	
-	private static long fnv1aHash(String string){
-		byte[] data = string.getBytes();
-		BigInteger hash = FNV_OFFSET_BASIS;
-		for(int ii = 0; ii < data.length; ii++){
-			int intOctet = data[ii] & 0xff;
-			hash = hash.xor(BigInteger.valueOf(intOctet));
-			hash = hash.multiply(FNV_PRIME).mod(MOD);
 		}
 		return hash.longValue();
 	}

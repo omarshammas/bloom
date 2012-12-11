@@ -76,7 +76,6 @@ public class StrataEstimatorTest {
 		assertEquals(additional, difference);
 	}
 	
-	
 	private Set<String> createFileNames(int number){
 		Set<String> files = new HashSet<String>(number);
 		while (files.size() < number){
