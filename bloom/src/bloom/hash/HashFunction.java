@@ -4,27 +4,64 @@ import java.math.BigInteger;
 import java.util.Random;
 
 public class HashFunction {
-
+	//Static constant members
 	private static final BigInteger FNV_PRIME =  new BigInteger("16777619");
 	private static final BigInteger FNV_OFFSET_BASIS = new BigInteger("2166136261");
 	private static final BigInteger MOD = new BigInteger("4294967296");
 	private static final int P = 2147483647;
 	
-	public static int hash(String key, int m){
-		return (int)(MurmurHash(key) % m);
+	/**
+	 * Computes a single hash value mod m using
+	 * the MurmmurHash algorithm
+	 * 
+	 * @param key	Key in which the hash will be performed on
+	 * @param m		Modulus value
+	 * @return		Hash value [0, m-1]
+	 */
+	public static int murmurHash(String key, int m){
+		return (int)(murmurHash(key) % m);
 	}
 	
-	public static int[] hash(String key,int numberOfHashes, int m){
-		int[] hashes = new int[numberOfHashes];
-		for(int ii = 0; ii < numberOfHashes; ii++){
+	/**
+	 * Computes a single hash value mod m using
+	 * the Fnv1 hash algorithm
+	 * 
+	 * @param key	Key in which the hash will be performed on
+	 * @param m		Modulus value
+	 * @return		Hash value [0, m-1]
+	 */
+	public static int fnv1Hash(String key, int m){
+		return (int)(fnv1Hash(key) % m);
+	}
+	
+	/**
+	 * Returns an array of k hashes by computing linear
+	 * combinations of the fnv1 hash with the MurmurHash
+	 * 
+	 * @param key	Key in which the hash will be performed on
+	 * @param k		Value specifying how many hash values to compute
+	 * @param m		Modulus value
+	 * @return		An array of size K with hash values [0, m-1]
+	 */
+	public static int[] hash(String key,int k, int m){
+		int[] hashes = new int[k];
+		for(int ii = 0; ii < k; ii++){
 			long h1 = fnv1Hash(key);
-			long h2 = MurmurHash(key);
+			long h2 = murmurHash(key);
 			long axb = h1+(ii*h2);
 			hashes[ii] = (int)(axb % m);
 		}
 		return hashes;
 	}
 	
+	/**
+	 * Returns a single min wise independent hash value
+	 * using a linear transformation
+	 * 
+	 * @param hashCode	Hash code of key
+	 * @param k 		Seed
+	 * @return			Hash value [0, P-1]
+	 */
 	public static int minWiseHash(int hashCode, int k){
 		Random random = new Random(k);
 		long a = random.nextInt(Integer.MAX_VALUE-1)+1;
@@ -33,6 +70,13 @@ public class HashFunction {
 		return (int)(((axb % P)+P)%P);
 	}
 	
+	
+	/**
+	 * Returns a single hash value using the fnv1 hash
+	 * 
+	 * @param string	Key
+	 * @return			Hash value long type [0,2^63]
+	 */
 	private static long fnv1Hash(String string){
 		byte[] data = string.getBytes();
 		BigInteger hash = FNV_OFFSET_BASIS;
@@ -43,8 +87,15 @@ public class HashFunction {
 		}
 		return hash.longValue();
 	}
-
-	public static long MurmurHash(String string) {
+	
+	/**
+	 * Computes a single hash value using
+	 * the MurmmurHash algorithm
+	 * 
+	 * @param string	Key
+	 * @return			Hash value long type [0,2^63]
+	 */
+	public static long murmurHash(String string) {
 		// Initialize variables
 		int seed = 283302;
 		byte[] data = string.getBytes();
