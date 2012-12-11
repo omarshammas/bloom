@@ -69,15 +69,14 @@ public class HashFunction {
 		long axb = a * hashCode + b;
 		return (int)(((axb % P)+P)%P);
 	}
-	
-	
+		
 	/**
 	 * Returns a single hash value using the fnv1 hash
 	 * 
 	 * @param string	Key
 	 * @return			Hash value long type [0,2^63]
 	 */
-	private static long fnv1Hash(String string){
+	public static long fnv1Hash(String string){
 		byte[] data = string.getBytes();
 		BigInteger hash = FNV_OFFSET_BASIS;
 		for(int ii = 0; ii < data.length; ii++){

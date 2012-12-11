@@ -13,7 +13,7 @@ public class StrataEstimatorTest {
 
 	static int HASH_COUNT = 3;
 	static int STRATA = 32;
-	static int NUMBER_OF_FILES = 1000;
+	static int NUMBER_OF_FILES = 300000;
 	static int SIZE = 80; 
 	
 	
@@ -46,16 +46,20 @@ public class StrataEstimatorTest {
 	
 	@Test
 	public void testEstimateDifferenceWithDifferentSets() {
-		int additional = 60;
-		Set<String> files1 = createFileNames(NUMBER_OF_FILES);
-		Set<String> files2 = createFileNames(additional);
+		int additional1 = 100, additional2 = 0;
+		Set<String> files = createFileNames(NUMBER_OF_FILES);
+		Set<String> files1 = createFileNames(additional1);
+		Set<String> files2 = createFileNames(additional2);
 //		Set<String> union = new HashSet<String>();
 //		union.addAll(files1);
 //		union.addAll(files2);
 //		assertEquals(2*NUMBER_OF_FILES-union.size(), difference);
 		
-		StrataEstimator se1 = new StrataEstimator(SIZE, HASH_COUNT, STRATA, files1);
-		StrataEstimator se2 = new StrataEstimator(SIZE, HASH_COUNT, STRATA, files1);
+		StrataEstimator se1 = new StrataEstimator(SIZE, HASH_COUNT, STRATA, files);
+		for (String file : files1)
+			se1.insert(file);
+		
+		StrataEstimator se2 = new StrataEstimator(SIZE, HASH_COUNT, STRATA, files);
 		for (String file : files2)
 			se2.insert(file);
 		
@@ -69,8 +73,8 @@ public class StrataEstimatorTest {
 			e.printStackTrace();
 			fail("Failed to estimate the difference");
 		}
-		System.out.println("Estimated: "+difference+", Actual: "+additional);
-		assertEquals(additional, difference);
+		System.out.println("Estimated: "+difference+", Actual: "+(additional1+additional2) );
+		assertEquals(additional1+additional2, difference);
 	}
 	
 	private Set<String> createFileNames(int number){
