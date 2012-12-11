@@ -58,14 +58,19 @@ public class StrataEstimatorTest {
 		assertEquals(additional, difference);
 	}
 	
+	@Test
+	public void testSize(){
+		String[] files = createFileNames(NUMBER_OF_FILES);
+		StrataEstimator se = new StrataEstimator(SIZE, HASH_COUNT, STRATA, files);
+		assertEquals(se.getSize(),SIZE);
+	}
+	
 	
 	private String[] createFileNames(int number){
 		String[] files = new String[number];
-		
 		for (int i=0; i < number; ++i){
 			files[i] = UUID.randomUUID().toString().substring(0,10);
 		}
-		
 		return files;
 	}
 
