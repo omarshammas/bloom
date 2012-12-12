@@ -121,7 +121,7 @@ public class InvertibleBloomFilter {
 	}
 	
 	//TODO this function is destructive, either change or emphasize
-	public ArrayList<String> getDifference() { //TODO throws Exception{
+	public ArrayList<String> getDifference() {//throws Exception{
 		
 		ArrayList<String> difference = new ArrayList<String>();
 		ArrayList<Integer> pureCells = new ArrayList<Integer>();

@@ -86,6 +86,8 @@ public class InvertibleBloomFilterTest {
 			try {
 				ArrayList<String> difference = ibf.getDifference();
 				assertEquals(NUMBER_OF_FILES, difference.size());
+				assertEquals(true, ibf.isEmpty());
+				
 				
 				ArrayList<String> files_list = new ArrayList<String>();
 				for (String s : files)
