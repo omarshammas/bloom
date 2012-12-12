@@ -13,8 +13,7 @@ public class InvertibleBloomFilter {
 	//TODO Remove, just used for debugging
 	private int counter;
 	private ArrayList<String> files;
-	
-	
+		
 	public InvertibleBloomFilter(int hashCount, int size){
 		this.hashCount = hashCount;
 		this.size = size;
@@ -26,6 +25,11 @@ public class InvertibleBloomFilter {
 		//TODO Remove, just used for debugging
 		this.counter = 0;
 		this.files = new ArrayList<String>();
+	}
+	
+	public InvertibleBloomFilter(int hashCount, int size, Collection<String> keys){
+		this(hashCount, size);
+		this.insertCollection(keys);
 	}
 	
 	public int getSize(){
@@ -43,7 +47,7 @@ public class InvertibleBloomFilter {
 	public void setCell(int i, Cell c){
 		filter[i] = c;
 	}
-	
+		
 	//TODO Remove, just used for debugging
 	public int getCounter(){
 		return counter;
@@ -57,8 +61,12 @@ public class InvertibleBloomFilter {
 	//TODO Remove, just used for debugging
 		public void printShit(){
 			Collections.sort(files);
-			System.out.println("Number of elements : "+counter);
+			//System.out.println("Number of elements : "+counter);
 			//System.out.println(files);
+			for(Cell c : filter){
+				System.out.print(c.count + ", ");
+			}
+			System.out.println("\n");
 		}
 	
 	public boolean isEmpty(){
@@ -84,6 +92,12 @@ public class InvertibleBloomFilter {
 		return true;
 	}
 	
+	public void insertCollection(Collection<String> keys){
+		for(String key : keys)
+			insert(key);
+
+	}
+	
 	public boolean remove(String key){		
 		//TODO Remove, just used for debugging
 		this.counter--;
@@ -107,7 +121,7 @@ public class InvertibleBloomFilter {
 	}
 	
 	//TODO this function is destructive, either change or emphasize
-	public ArrayList<String> getDifference() throws Exception{
+	public ArrayList<String> getDifference() {//throws Exception{
 		
 		ArrayList<String> difference = new ArrayList<String>();
 		ArrayList<Integer> pureCells = new ArrayList<Integer>();
@@ -129,9 +143,9 @@ public class InvertibleBloomFilter {
 				break;
 		}
 
-		
-		if (!isEmpty())
-			throw new Exception("Unable to determine difference after " + counter +" tries.");
+//TODO		
+//		if (!isEmpty())
+//			throw new Exception("Unable to determine difference after " + counter +" tries.");
 		
 		return difference;
 	}
