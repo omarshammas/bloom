@@ -27,7 +27,7 @@ public class Main {
 	public static void tuningIBF(int num_hash_functions, int num_cells){
 		int trials = 100;
 		int[] keys_sizes = {100,1000,10000,100000,1000000};
-		int[] difference_sizes = {0,5,10,15,20,25,30,35,40,45,50};
+		int[] deltas = {0,5,10,15,20,25,30,35,40,45,50};
 		
 		Set<String> files_base, files_different;
 		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
@@ -36,7 +36,7 @@ public class Main {
 		float success, success_total;
 		
 		for(int i=0; i < keys_sizes.length; ++i){			
-			for(int j=0; j < difference_sizes.length; ++j){
+			for(int j=0; j < deltas.length; ++j){
 				
 				success_total = 0;
 				for (int t=0; t < trials; ++t){
@@ -46,7 +46,7 @@ public class Main {
 					ibf1 = new InvertibleBloomFilter(num_hash_functions, num_cells, files_base);
 					
 					files_different = new HashSet<String>(files_base);
-					files_different = createFileNames(difference_sizes[j], files_different);
+					files_different = createFileNames(deltas[j], files_different);
 					ibf2 = new InvertibleBloomFilter(num_hash_functions, num_cells, files_different);
 					
 					ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
@@ -118,7 +118,7 @@ public class Main {
 	}
 	
 	//num keys shouldn't matter, as shown by the tuning IBF results, what matter is the difference between sets
-	public static void spaceOverhead(int num_keys, int num_strata, int num_hash_functions){
+	public static void correctionOverhead(int num_keys, int num_strata, int num_hash_functions){
 		int trials = 20;
 		int[] deltas = {10, 100, 1000, 10000}; //, 100000};
 		int[] cell_sizes = {20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160};
@@ -169,13 +169,14 @@ public class Main {
 		
 	}
 
+
 	
     public static void main(String[] args) {
 
     	
     	//tuningIBF(4,50);   	
     	//tuningHashCount(100, 50);
-    	spaceOverhead(100, 32, 4); //TODO enable throw exception otherwise results are completely off
+		//correctionOverhead(100, 32, 4); //TODO enable throw exception otherwise results are completely off
     	
     }
 }
