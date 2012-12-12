@@ -2,6 +2,8 @@ package bloom.dd;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import bloom.filters.InvertibleBloomFilter;
 import bloom.hash.HashFunction;
@@ -11,6 +13,7 @@ public class StrataEstimator {
 	public static int HASH_COUNT = 3;
 	public static int STRATA = 32;
 	public static int CUTOFF = 10;
+	public static int SIZE = 80;
 	
 	private InvertibleBloomFilter[] estimator;
 	private int size;
@@ -18,8 +21,16 @@ public class StrataEstimator {
 	private int strata;
 	private int[] distro;
 	
-	public StrataEstimator(int size, Collection<String> files){
-		this(size, HASH_COUNT, STRATA, files);
+	public StrataEstimator(int strata){
+		this(SIZE, HASH_COUNT, strata, new HashSet<String>());
+	}
+	
+	public StrataEstimator(int strata, Set<String> keys){
+		this(SIZE, HASH_COUNT, strata, keys);
+	}
+	
+	public StrataEstimator(int size, Set<String> files, int strata){
+		this(size, HASH_COUNT, strata, files);
 	}
 		
 	public StrataEstimator(int size, int hashCount, int strata, Collection<String> files){

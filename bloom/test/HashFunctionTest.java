@@ -10,13 +10,35 @@ import bloom.hash.HashFunction;
 
 
 public class HashFunctionTest {
-	
+//Constants	
 	private static final int M = 1000000;
 	private static final int m = 100;
 	private static final double ERROR = 0.05;
 	
+//Tests
+	
 	@Test
-	public void testMurmurHash(){
+	public void testIfFNV1HashIsDeterministic(){
+		for(int ii= 0; ii < M; ii++){
+			String key = UUID.randomUUID().toString().substring(0,15);
+			long hash1 = HashFunction.fnv1Hash(key);
+			long hash2 = HashFunction.fnv1Hash(key);
+			assertEquals(hash1, hash2);
+		}
+	}
+	
+	@Test
+	public void testIfMurmurHashIsDeterministic(){
+		for(int ii = 0; ii < M; ii++){
+			String key = UUID.randomUUID().toString().substring(0,15);
+			long hash1 = HashFunction.murmurHash(key);
+			long hash2 = HashFunction.murmurHash(key);
+			assertEquals(hash1, hash2);
+		}
+	}
+	
+	@Test
+	public void testUniformityOfMurmurHash(){
 		// Initialize array of buckets
 		int[] buckets = createFreqArray(m);
 		// Fill in array with a running count of hash locations
@@ -39,19 +61,7 @@ public class HashFunctionTest {
 	}
 	
 	@Test
-	public void test3Hashes(){
-		int k = 3;
-		kHashFunctions(k);
-	}
-	
-	@Test
-	public void test4Hashes(){
-		int k = 4;
-		kHashFunctions(k);
-	}
-	
-	@Test
-	public void testFnv1Hash(){
+	public void testUniformityOfFnv1Hash(){
 		int[] buckets = createFreqArray(m);
 		// Fill in array with a running count of hash locations
 		int index;
@@ -71,8 +81,20 @@ public class HashFunctionTest {
 		}
 		System.out.print("\n");
 	}
+	
+	@Test
+	public void testUniformityOf3Hashes(){
+		int k = 3;
+		kHashFunctions(k);
+	}
+	
+	@Test
+	public void testUniformityOf4Hashes(){
+		int k = 4;
+		kHashFunctions(k);
+	}
 
-
+//Private Functions
 	private void kHashFunctions(int k) {
 		int[] buckets = createFreqArray(m);
 		// Fill in array with a running count of hash locations

@@ -27,9 +27,9 @@ public class InvertibleBloomFilter {
 		this.files = new ArrayList<String>();
 	}
 	
-	public InvertibleBloomFilter(int hashCount, int size, Collection<String> keys){
+	public InvertibleBloomFilter(int hashCount, int size, Set<String> keys){
 		this(hashCount, size);
-		this.insertCollection(keys);
+		this.insert(keys);
 	}
 	
 	public int getSize(){
@@ -92,7 +92,7 @@ public class InvertibleBloomFilter {
 		return true;
 	}
 	
-	public void insertCollection(Collection<String> keys){
+	public void insert(Set<String> keys){
 		for(String key : keys)
 			insert(key);
 
@@ -121,7 +121,7 @@ public class InvertibleBloomFilter {
 	}
 	
 	//TODO this function is destructive, either change or emphasize
-	public ArrayList<String> getDifference() {//throws Exception{
+	public ArrayList<String> getDifference() { //TODO throws Exception{
 		
 		ArrayList<String> difference = new ArrayList<String>();
 		ArrayList<Integer> pureCells = new ArrayList<Integer>();

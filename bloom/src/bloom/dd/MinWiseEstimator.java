@@ -10,24 +10,18 @@ public class MinWiseEstimator {
 	
 	//The number of hashes used in the Varghese paper
 	private static final int K = 3840;
+	
+	// Private Members
 	private int[] hashes;
 	private int size;
 	
-	//Getter and Setters
+	// Getters
 	public int[] getHashes() {
 		return hashes;
 	}
 
-	public void setHashes(int[] hashes) {
-		this.hashes = hashes;
-	}
-
 	public int getSize() {
 		return size;
-	}
-
-	public void setSize(int size) {
-		this.size = size;
 	}
 	
 	/**
@@ -54,12 +48,12 @@ public class MinWiseEstimator {
 	}
 	
 	/**
-	 * Adds a key to the estimator. The "hashes" array
+	 * Inserts a key into the estimator. The "hashes" array
 	 * is recomputed for this new key
 	 * 
 	 * @param	key	A key to be added
 	 */
-	public void add(String key) {
+	public void insert(String key) {
 		size++;
 		for (int kk = 0; kk < hashes.length; kk++) {
 			int newHash = HashFunction.minWiseHash(key.hashCode(), kk);
@@ -69,12 +63,12 @@ public class MinWiseEstimator {
 	}
 	
 	/**
-	 * Adds a set of keys to the estimator. The "hashes" array
-	 * is recomputed for each new key
+	 * Inserts a set of keys to the estimator. The "hashes" 
+	 * array is recomputed for each new key
 	 * 
 	 * @param	keys	A set of keys to be added
 	 */
-	public void addKeys(Set<String> keys) {
+	public void insert(Set<String> keys) {
 		size += keys.size();
 		for (int kk = 0; kk < hashes.length; kk++) {
 			int minValue = hashes[kk];
@@ -89,7 +83,7 @@ public class MinWiseEstimator {
 	 * @param	estimator	a min-wise estimator object for a given set
 	 * @return				the estimated set difference 
 	 */
-	public float difference(MinWiseEstimator estimator){
+	public int estimateDifference(MinWiseEstimator estimator){
 		int[] hashesB = estimator.getHashes();
 		float m = 0;
 		for(int ii = 0; ii < hashesB.length; ii++){
@@ -97,7 +91,7 @@ public class MinWiseEstimator {
 				m++;
 		}
 		float r = m/K;
-		return (1-r)/(1+r) * (estimator.getSize()+this.size);
+		return (int) ((1-r)/(1+r) * (estimator.getSize()+this.size));
 	}
 	
 	/**
