@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import bloom.dd.StrataEstimator;
 import bloom.filters.InvertibleBloomFilter;
+import bloom.hash.Hash;
+import bloom.hash.HashPseudoRandom;
 
 public class Main {
 
@@ -77,6 +79,7 @@ public class Main {
 		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
 		Set<String> files_base, files_different;
 		ArrayList<String> decoded_files;
+		Hash hash = new HashPseudoRandom();
 		double[][] results = new double[deltas.length][hashCount.length];
 		
 		for (int i=0; i < deltas.length; ++i)
@@ -92,8 +95,8 @@ public class Main {
 				files_different = createFileNames(deltas[i], files_different);
 				
 				for (int j=0; j < hashCount.length; ++j){
-					ibf1 = new InvertibleBloomFilter(hashCount[j], num_cells, files_base);
-					ibf2 = new InvertibleBloomFilter(hashCount[j], num_cells, files_different);
+					ibf1 = new InvertibleBloomFilter(hashCount[j], num_cells, hash, files_base);
+					ibf2 = new InvertibleBloomFilter(hashCount[j], num_cells, hash, files_different);
 					
 					ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
 					decoded_files = ibf_sub.getDifference();
@@ -175,7 +178,7 @@ public class Main {
 
     	
     	//tuningIBF(4,50);   	
-    	//tuningHashCount(100, 50);
+    	tuningHashCount(100, 50);
 		//correctionOverhead(100, 32, 4); //TODO enable throw exception otherwise results are completely off
     	
     }

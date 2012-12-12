@@ -17,7 +17,7 @@ public class InvertibleBloomFilterTest {
 	static int HASH_COUNT = 3;
 	static int SIZE = 1000;
 	static String KEY = "teststring";
-	static int NUMBER_OF_FILES = 100;
+	static int NUMBER_OF_FILES = 200;
 	
 	@Test
 	public void testConstructor() {
