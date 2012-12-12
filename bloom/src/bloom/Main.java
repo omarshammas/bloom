@@ -79,7 +79,7 @@ public class Main {
 		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
 		Set<String> files_base, files_different;
 		ArrayList<String> decoded_files;
-		Hash hash = new HashPseudoRandom();
+		Hash hash;
 		double[][] results = new double[deltas.length][hashCount.length];
 		
 		for (int i=0; i < deltas.length; ++i)
@@ -95,6 +95,7 @@ public class Main {
 				files_different = createFileNames(deltas[i], files_different);
 				
 				for (int j=0; j < hashCount.length; ++j){
+					hash = new HashPseudoRandom();
 					ibf1 = new InvertibleBloomFilter(hashCount[j], num_cells, hash, files_base);
 					ibf2 = new InvertibleBloomFilter(hashCount[j], num_cells, hash, files_different);
 					
@@ -111,7 +112,7 @@ public class Main {
 		
 		System.out.println("-----Results----");
 		for (int i=0; i < deltas.length; ++i){
-			System.out.println(deltas[i]+" Set Difference");
+			//System.out.println(deltas[i]+" Set Difference");
 			for (int j=0; j < hashCount.length; ++j){
 				results[i][j] /= (double) trials;
 				System.out.print(results[i][j] + ", ");

@@ -99,8 +99,8 @@ public class InvertibleBloomFilter {
 		//this.files.add(key);
 		
 		//TODO change back
-		int[] hashes = HashFunction.hash(key, hashCount, size);
-		//int[] hashes = this.hash.hash(key, hashCount, size);
+		//int[] hashes = HashFunction.hash(key, hashCount, size);
+		int[] hashes = this.hash.hash(key, hashCount, size);
 		
 		for (int i : hashes){
 			filter[i].add(key);
@@ -120,8 +120,8 @@ public class InvertibleBloomFilter {
 		//this.files.remove(key);
 				
 		//TODO change back
-		int[] hashes = HashFunction.hash(key, hashCount, size);
-		//int[] hashes = this.hash.hash(key, hashCount, size);
+		//int[] hashes = HashFunction.hash(key, hashCount, size);
+		int[] hashes = this.hash.hash(key, hashCount, size);
 		
 		for (int i : hashes){
 			filter[i].remove(key);
@@ -132,8 +132,8 @@ public class InvertibleBloomFilter {
 	public boolean find(String key){
 		
 		//TODO change back
-		int[] hashes = HashFunction.hash(key, hashCount, size);
-		//int[] hashes = this.hash.hash(key, hashCount, size);
+		//int[] hashes = HashFunction.hash(key, hashCount, size);
+		int[] hashes = this.hash.hash(key, hashCount, size);
 		
 		for (int i : hashes){
 			if (filter[i].count < 1)
