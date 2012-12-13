@@ -14,10 +14,12 @@ import bloom.filters.InvertibleBloomFilter;
 
 public class InvertibleBloomFilterTest {
 	
+	public static final int TRIALS = 100;
+	public static final int NUMBER_OF_KEYS = 100;
+	public static final int SIZE = (int) (1.5*NUMBER_OF_KEYS);
 	public static final int HASH_COUNT = 3;
-	public static final int SIZE = 1000;
 	public static final String KEY = "teststring";
-	public static final int NUMBER_OF_FILES = 100;
+	
 	
 	@Test
 	public void testConstructor() {
@@ -26,12 +28,13 @@ public class InvertibleBloomFilterTest {
 		assertTrue(ibf.isEmpty());
 		assertEquals(SIZE, ibf.getSize());
 		assertEquals(HASH_COUNT, ibf.getHashCount());
-		try {
-			assertEquals(0, ibf.getPureKeys().size());
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Failed to get the difference");
-		}
+		assertEquals(0, ibf.getPureKeys().size());
+	}
+	
+	@Test
+	public void testIsEmpty(){
+		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE);
+		assertEquals(true, ibf.isEmpty());
 	}
 	
 	@Test
@@ -56,137 +59,83 @@ public class InvertibleBloomFilterTest {
 	}
 	
 	@Test
-	public void testGetDifferenceWithSingleItem() {
+	public void testGetPureKeysWithSingleItem() {
 		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE);
 		
 		ibf.insert(KEY);
 		
-		try {
-			ArrayList<String> difference = ibf.getPureKeys();
-			assertEquals(1, difference.size());
-			assertEquals(KEY, difference.get(0));
-		} catch (Exception e) {
+		Set<String> difference = ibf.getPureKeys();
+		
+		if(!ibf.isEmpty())
 			fail("Failed to get the difference");
-		}
+		
+		assertEquals(1, difference.size());
+		assertEquals(true, difference.contains(KEY));
 	}
 	
 	@Test
-	public void testGetDifferenceWithMultipleItems() {
+	public void testGetPureKeysWithMultipleItems() {
 		int counter = 0;
-		for(int i=0; i < 1000; ++i){
-			//size = 1.5d
-			int size = (int) (NUMBER_OF_FILES*1.5);
-			InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, size);
+		Set<String> keys, diff;
+		InvertibleBloomFilter ibf;
+		
+		for(int t=0; t < TRIALS; ++t){
+			 keys = createKeys(NUMBER_OF_KEYS);
+			 ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE, keys);
+			 
+			 diff = ibf.getPureKeys();
 			
-			Set<String> files = createFileNames(NUMBER_OF_FILES);
-			for (String s : files){
-				ibf.insert(s);
-			}
-								
-			try {
-				ArrayList<String> difference = ibf.getPureKeys();
-				assertEquals(NUMBER_OF_FILES, difference.size());
-				assertEquals(true, ibf.isEmpty());
-				
-				
-				ArrayList<String> files_list = new ArrayList<String>();
-				for (String s : files)
-					files_list.add(s);
-				
-				Collections.sort(files_list);
-				Collections.sort(difference);
-				assertEquals(true, files_list.equals(difference));
-				
-			} catch (Exception e) {
-//				e.printStackTrace();
-//				fail("Failed to get the difference");
-				counter ++;
+			if (!ibf.isEmpty()){ //Was unable to decode the ibf, there are still elements
+				counter++;
+			} else {
+				assertEquals(NUMBER_OF_KEYS, diff.size());
+				assertEquals(true, diff.equals(keys));
 			}
 		}
-		System.out.println("Unable to decode "+counter+" times out of 1000");
+		
+		System.out.println("Unable to decode "+counter+" times out of "+TRIALS);
 	}
 
 	@Test
-	public void testSubtract() {
+	public void testSubtract() throws Exception {
 		InvertibleBloomFilter ibf1 = new InvertibleBloomFilter(HASH_COUNT, SIZE);
 		InvertibleBloomFilter ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE);
 		InvertibleBloomFilter ibf_sub;
 		
 		ibf1.insert(KEY);
-		ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
-		try {
-			assertEquals(1, ibf_sub.getPureKeys().size());
-		} catch (Exception e) {
-			fail("Failed to get the difference");
-		}
-		
+		ibf_sub = ibf1.subtract(ibf2);
+		assertEquals(1, ibf_sub.getPureKeys().size());
+
 		ibf2.insert(KEY);
-		ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
-		try {
-			assertEquals(0, ibf_sub.getPureKeys().size());
-		} catch (Exception e) {
-			fail("Failed to get the difference");
-		}
+		ibf_sub = ibf1.subtract(ibf2);
+		assertEquals(0, ibf_sub.getPureKeys().size());
 	}
 	
 	@Test
-	public void testSubstractWithMultipleItems() {
-		//size = 1.5d
-		int size = (int) (NUMBER_OF_FILES*1.5);
-		InvertibleBloomFilter ibf1 = new InvertibleBloomFilter(HASH_COUNT, size);
-		InvertibleBloomFilter ibf2 = new InvertibleBloomFilter(HASH_COUNT, size);
-		InvertibleBloomFilter ibf3 = new InvertibleBloomFilter(HASH_COUNT, size);
+	public void testSubtractWithMultipleItems() {
+		int counter = 0;
+		Set<String> keys, diff;
+		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
 		
-		Set<String> files = createFileNames(NUMBER_OF_FILES);
-		for (String s : files){
-			ibf1.insert(s);
-			ibf2.insert(s);
-		}
+		keys = createKeys(NUMBER_OF_KEYS);
+		ibf1 = new InvertibleBloomFilter(HASH_COUNT, SIZE, keys);
+		ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE, keys);
 		
-		InvertibleBloomFilter ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
-		try {
-			assertEquals(0, ibf_sub.getPureKeys().size());
-		} catch (Exception e) {
-			fail("Failed to get the difference");
-		}		
+		ibf_sub = ibf1.subtract(ibf2);
+		assertEquals(0, ibf_sub.getPureKeys().size());
 		
-		Random rand = new Random();
-		int counter = 0, num = rand.nextInt(NUMBER_OF_FILES);
-		for (String s : files){
-			if (counter >= num)
-				break;
-			
-			ibf3.insert(s);
-			counter++;
-		}
-		
-		ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf3);
-		try {
-			ArrayList<String> difference = ibf_sub.getPureKeys();
-			assertEquals(NUMBER_OF_FILES-num, difference.size());
-		} catch (Exception e) {
-			fail("Failed to get the difference");
-		}		
-		
+		//TODO test with differing sets		
 	}
 	
 	@Test
 	public void testIsEquivalent(){
 		InvertibleBloomFilter ibf1 = new InvertibleBloomFilter(HASH_COUNT, SIZE);
 		InvertibleBloomFilter ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE);
+		InvertibleBloomFilter ibf3 = new InvertibleBloomFilter(HASH_COUNT+1, SIZE);
+		InvertibleBloomFilter ibf4 = new InvertibleBloomFilter(HASH_COUNT, SIZE+1);
 
-		assertEquals(true, InvertibleBloomFilter.isEquivalent(ibf1, ibf2));
-		ibf1.insert(KEY);
-		assertEquals(true, InvertibleBloomFilter.isEquivalent(ibf1, ibf2));		
-	}
-	
-	private Set<String> createFileNames(int number){
-		Set<String> files = new HashSet<String>(number);
-		
-		while (files.size() < number){
-			files.add( UUID.randomUUID().toString().substring(0,10) );	
-		}
-		
-		return files;
+		assertEquals(true, ibf1.isEquivalent(ibf2));
+		assertEquals(false,  ibf1.isEquivalent(ibf3));
+		assertEquals(false,  ibf1.isEquivalent(ibf4));
 	}
 }
