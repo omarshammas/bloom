@@ -20,20 +20,30 @@ public class CellTest {
 	
 	@Test
 	public void testAdd() {
-		String key = Utilities.createKey();
-		Cell c = new Cell();
-		c.add(key);
-		assertEquals(Cell.INITIAL_HASH_SUM^key.hashCode(), c.getHashSum());
+		String key;
+		Cell c;
+		
+		for (int t=0; t < TRIALS; ++t){ 
+			key = Utilities.createKey();
+			c = new Cell();
+			c.add(key);
+			assertEquals(Cell.INITIAL_HASH_SUM^key.hashCode(), c.getHashSum());
+		}
 	}
 
 	@Test
 	public void testRemove() {
-		String key = Utilities.createKey();
-		Cell c = new Cell();
-		c.add(key);
-		c.remove(key);
-		assertEquals(c.getIdSum(), Cell.INITIAL_ID_SUM);
-		assertEquals(c.getHashSum(), Cell.INITIAL_HASH_SUM);
+		String key;
+		Cell c;
+		
+		for (int t=0; t < TRIALS; ++t){ 
+			 key = Utilities.createKey();
+			c = new Cell();
+			c.add(key);
+			c.remove(key);
+			assertEquals(c.getIdSum(), Cell.INITIAL_ID_SUM);
+			assertEquals(c.getHashSum(), Cell.INITIAL_HASH_SUM);
+		}
 		
 	}
 	
@@ -92,18 +102,52 @@ public class CellTest {
 	
 	@Test
 	public void testSubtract(){
-		String key1 = Utilities.createKey();
-		String key2 = Utilities.createKey();
-		Cell c1 = new Cell();
-		Cell c2 = new Cell();
+		String key1, key2;
+		Cell c1, c2;
 		
-		c1.add(key1);
-		c2.add(key2);
+		for (int t=0; t < TRIALS; ++t){
+			key1 = Utilities.createKey();
+			key2 = Utilities.createKey();
+			
+			c1 = new Cell();
+			c2 = new Cell();
+			
+			c1.add(key1);
+			c2.add(key2);
+			
+			Cell c = Cell.subtract(c1, c2);
+			
+			assertEquals(c.getHashSum(), c1.getHashSum() ^ c2.getHashSum() ^ Cell.INITIAL_HASH_SUM);
+			assertEquals(c.getIdSum(), Cell.XOR(Cell.XOR(c1.getIdSum(), c2.getIdSum()), Cell.INITIAL_ID_SUM));
+		}
+	}
+	
+	@Test
+	public void testDuplicate(){
+		String key;
+		Cell c;
+		int hashCount = 7;
 		
-		Cell c = Cell.subtract(c1, c2);
+		for (int t=0; t < TRIALS; ++t){
+			key = Utilities.createKey();
+			c = new Cell();
+			
+			c.add(key);
+			for (int i=1; i < hashCount; ++i){
+				c.add(key);
+				assertEquals(false, c.isPure());
+			}
 		
-		assertEquals(c.getHashSum(), c1.getHashSum() ^ c2.getHashSum() ^ Cell.INITIAL_HASH_SUM);
-		assertEquals(c.getIdSum(), Cell.XOR(Cell.XOR(c1.getIdSum(), c2.getIdSum()), Cell.INITIAL_ID_SUM));
+			for (int i=2; i < hashCount; ++i){
+				c.remove(key);
+				assertEquals(false, c.isPure());
+			}
+			c.remove(key);
+			assertEquals(true, c.isPure());
+			
+			c.remove(key);	
+			assertEquals(true, c.isEmpty());
+		}
 	}
 
 }
