@@ -102,7 +102,7 @@ public class InvertibleBloomFilter {
 		ArrayList<Integer> pureCells = new ArrayList<Integer>();
 		Integer index;
 		String key;
-		
+
 		pureCells = getPureCells();
 		while (!pureCells.isEmpty()){
 			index = pureCells.remove(pureCells.size() - 1);
