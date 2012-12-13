@@ -1,6 +1,8 @@
 package bloom.utils;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -59,5 +61,24 @@ public class Utilities {
 			}
 		}
 		return keys;
+	}
+	
+	public static Set<Integer> getNumberOfOddItems(int[] numbers){
+		Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+		
+		for (int number : numbers){
+			if (map.containsKey(number))
+				map.put(number, map.get(number)+1);
+			else
+				map.put(number, 1);
+		}
+		
+		Set<Integer> unique = new HashSet<Integer>();
+		for (Integer i : map.keySet()){
+			if (map.get(i)%2 == 1)
+				unique.add(i);
+		}
+		
+		return unique;
 	}
 }

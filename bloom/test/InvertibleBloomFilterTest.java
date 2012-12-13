@@ -1,11 +1,13 @@
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
 
 import bloom.filters.InvertibleBloomFilter;
+import bloom.hash.HashFunction;
 import bloom.utils.Utilities;
 
 
@@ -58,17 +60,22 @@ public class InvertibleBloomFilterTest {
 	
 	@Test
 	public void testGetPureCells(){
+		String key;
+		InvertibleBloomFilter ibf;
+		ArrayList<Integer> difference;
+		Set<Integer> hashes;
+		
 		for (int i=0; i < 10000; ++i){
-			String key = Utilities.createKey();
-			InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE);
-			ArrayList<Integer> difference = ibf.getPureCells();
-			assertEquals(0, difference.size());
-			ibf.insert(key);
+			key = Utilities.createKey();
+			ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE);
 			difference = ibf.getPureCells();
-			//assertEquals(ibf.getHashCount(), difference.size());
-			if (ibf.getHashCount() != difference.size()){
-				System.out.println("'"+key+"'");
-			}		
+			assertEquals(0, difference.size());
+			
+			ibf.insert(key);
+			
+			difference = ibf.getPureCells();
+			hashes = Utilities.getNumberOfOddItems(HashFunction.hash(key, HASH_COUNT, SIZE));
+			assertEquals(hashes.size(), difference.size());		
 		}
 	}
 	
@@ -88,7 +95,6 @@ public class InvertibleBloomFilterTest {
 		assertEquals(true, difference.contains(key));
 	}
 	
-	//TODO uncomment
 	@Test
 	public void testGetPureKeysWithMultipleItems() {
 		int counter = 0;
@@ -109,7 +115,6 @@ public class InvertibleBloomFilterTest {
 			}
 		}
 		System.out.println("Unable to decode "+counter+" times out of "+TRIALS);
-		System.exit(0);
 	}
 
 	@Test
