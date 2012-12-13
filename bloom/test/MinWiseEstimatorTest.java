@@ -7,6 +7,8 @@ import org.junit.Test;
 
 import bloom.dd.HybridEstimator;
 import bloom.dd.MinWiseEstimator;
+import bloom.dd.StrataEstimator;
+import bloom.utils.Utilities;
 
 
 public class MinWiseEstimatorTest {
@@ -15,27 +17,42 @@ public class MinWiseEstimatorTest {
 	@Test
 	public void testConstructors(){
 		//TODO: Find a way to test if constructor works
-		HybridEstimator estimator = new HybridEstimator();
-		estimator = new HybridEstimator(randomSet(100));
+		MinWiseEstimator estimator = new MinWiseEstimator();
+		estimator = new MinWiseEstimator(Utilities.createKeys(100));
 	}
 	
 	@Test
 	public void testInsert(){
 		//TODO: Find a way to test if inserts are succeeding
-		HybridEstimator estimator = new HybridEstimator();
-		estimator.insert(randomString());
-		estimator.insert(randomSet(100));
+		MinWiseEstimator estimator = new MinWiseEstimator();
+		estimator.insert(Utilities.createKey());
+		estimator.insert(Utilities.createKeys(100));
 	}
 	
 	@Test
 	public void testEstimateDifference(){
-		assertTrue(false);
+		MinWiseEstimator mwe3 = new MinWiseEstimator(3);
+		MinWiseEstimator mwe4 = new MinWiseEstimator(4);
+		StrataEstimator se = new StrataEstimator();
+		try {
+			mwe3.estimateDifference(se);
+			assertTrue(false);
+		} catch (Exception e) {}
+		try {
+			mwe3.estimateDifference(mwe4);
+			assertTrue(false);
+		} catch (Exception e) {}
+		try {
+			mwe3.estimateDifference(mwe3);
+		} catch (Exception e) {
+			assertTrue(false);
+		}
 	}
 	
 	@Test
-	public void testEstimatorExhaustively(){
+	public void testEstimateDifferenceExhaustively(){
 		int size = 100000;
-		System.out.println("Real J | Calc J | Real Diff | Calc Diff | Overhead\n");
+		System.out.println("Real J | Real Diff | Calc Diff | Overhead\n");
 		String key;
 		Set<String> setA = new HashSet<String>();
 		Set<String> setB = new HashSet<String>();
@@ -70,20 +87,7 @@ public class MinWiseEstimatorTest {
 			diffA.removeAll(setB);
 			System.out.print(" | "+diffA.size());
 			System.out.print(" | "+d);
-			System.out.print(" | "+(diffA.size()/d)+"\n");
+			System.out.print(" | "+(diffA.size()/(float)d)+"\n");
 		}
 	}
-	
-//Private Methods
-	private Set<String> randomSet(int size){
-		Set<String> keys = new HashSet<String>(size);
-		while (keys.size() < size)
-			keys.add( UUID.randomUUID().toString().substring(0,10) );		
-		return keys;
-	}
-	
-	private String randomString(){
-		return UUID.randomUUID().toString().substring(0,10);
-	}
-	
 }

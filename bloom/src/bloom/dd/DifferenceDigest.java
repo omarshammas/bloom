@@ -6,7 +6,7 @@ import java.util.Set;
 import bloom.filters.InvertibleBloomFilter;
 
 public class DifferenceDigest {
-	//Enum of estimator type
+	//Enumeration of EstimatorType
 	public enum EstimatorType {
 		STRATA,
 		MINWISE,
@@ -15,12 +15,10 @@ public class DifferenceDigest {
 	//Constants
 	public static final EstimatorType ESTIMATOR_TYPE = EstimatorType.HYBRID;
 	public static final int HASH_COUNT = 4;
-	
 	// Members
 	private Estimator estimator;
 	private Set<String> keys;
 	private EstimatorType estimatorType;
-
 	/**
 	 * Default Constructor
 	 */

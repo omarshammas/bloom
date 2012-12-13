@@ -8,6 +8,14 @@ public class Utilities {
 	//Constants
 	public static final int KEY_LENGTH = 4;
 	
+	public static String createKey(){
+		return createKey(KEY_LENGTH);
+	}
+	
+	public static String createKey(int keyLength){
+		return UUID.randomUUID().toString().substring(0,keyLength);
+	}
+	
 	public static Set<String> createKeys(int number){
 		return createKeys(number, new HashSet<String>(number));
 	}
