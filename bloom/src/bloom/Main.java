@@ -29,9 +29,8 @@ public class Main {
 		int[] keys_sizes = {100,1000,10000,100000,1000000};
 		int[] deltas = {0,5,10,15,20,25,30,35,40,45,50};
 		
-		Set<String> files_base, files_different;
+		Set<String> files_base, files_different, difference;
 		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
-		ArrayList<String> difference;
 		int realDiff, calcDiff;
 		float success, success_total;
 		
@@ -75,8 +74,7 @@ public class Main {
 		int[] deltas = {0,5,10,15,20,25,30,35,40,45,50};
 		int[] hashCount = {2,3,4,5,6};
 		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
-		Set<String> files_base, files_different;
-		ArrayList<String> decoded_files;
+		Set<String> files_base, files_different,decoded_files;
 		double[][] results = new double[deltas.length][hashCount.length];
 		
 		for (int i=0; i < deltas.length; ++i)
@@ -146,7 +144,7 @@ public class Main {
 					
 					difference = 0;
 					try {
-						difference = StrataEstimator.estimateDifference(se1, se2);
+						difference = se1.estimateDifference(se2);
 					} catch (Exception e) {
 						System.out.println(deltas[i]+" - "+cell_sizes[j]+" : Strata estimator was unable to deocde");
 					}
@@ -174,7 +172,7 @@ public class Main {
     public static void main(String[] args) {
 
     	
-    	//tuningIBF(4,50);   	
+    	tuningIBF(4,50);   	
     	//tuningHashCount(100, 50);
 		//correctionOverhead(100, 32, 4); //TODO enable throw exception otherwise results are completely off
     	
