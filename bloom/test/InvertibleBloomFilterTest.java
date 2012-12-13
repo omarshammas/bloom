@@ -6,8 +6,12 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.sun.tools.internal.ws.processor.modeler.wsdl.PseudoSchemaBuilder;
+
 import bloom.filters.InvertibleBloomFilter;
+import bloom.hash.Hash;
 import bloom.hash.HashFunction;
+import bloom.hash.HashPseudoRandom;
 import bloom.utils.Utilities;
 
 
@@ -21,7 +25,8 @@ public class InvertibleBloomFilterTest {
 	
 	@Test
 	public void testConstructor() {
-		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE);
+		HashPseudoRandom hash = new HashPseudoRandom();
+		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash);
 		
 		assertTrue(ibf.isEmpty());
 		assertEquals(SIZE, ibf.getSize());
@@ -31,14 +36,16 @@ public class InvertibleBloomFilterTest {
 	
 	@Test
 	public void testIsEmpty(){
-		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE);
+		HashPseudoRandom hash = new HashPseudoRandom();
+		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash);
 		assertEquals(true, ibf.isEmpty());
 	}
 	
 	@Test
 	public void testInsert() {
 		String key = Utilities.createKey();
-		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE);
+		HashPseudoRandom hash = new HashPseudoRandom();
+		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash);
 		
 		ibf.insert(key);
 		
@@ -49,7 +56,8 @@ public class InvertibleBloomFilterTest {
 	@Test
 	public void testRemove() {
 		String key = Utilities.createKey();
-		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE);
+		HashPseudoRandom hash = new HashPseudoRandom();
+		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash);
 		
 		ibf.insert(key);
 		ibf.remove(key);
@@ -64,17 +72,19 @@ public class InvertibleBloomFilterTest {
 		InvertibleBloomFilter ibf;
 		ArrayList<Integer> difference;
 		Set<Integer> hashes;
+		HashPseudoRandom hash;
 		
 		for (int i=0; i < 10000; ++i){
+			hash = new HashPseudoRandom();
 			key = Utilities.createKey();
-			ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE);
+			ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash);
 			difference = ibf.getPureCells();
 			assertEquals(0, difference.size());
 			
 			ibf.insert(key);
 			
 			difference = ibf.getPureCells();
-			hashes = Utilities.getNumberOfOddItems(HashFunction.hash(key, HASH_COUNT, SIZE));
+			hashes = Utilities.getNumberOfOddItems(hash.hash(key, HASH_COUNT, SIZE));
 			assertEquals(hashes.size(), difference.size());		
 		}
 	}
@@ -82,7 +92,8 @@ public class InvertibleBloomFilterTest {
 	@Test
 	public void testGetPureKeysWithSingleItem() {
 		String key = Utilities.createKey();
-		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE);
+		HashPseudoRandom hash = new HashPseudoRandom();
+		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash);
 		
 		ibf.insert(key);
 		
@@ -100,12 +111,15 @@ public class InvertibleBloomFilterTest {
 		int counter = 0;
 		Set<String> keys, diff;
 		InvertibleBloomFilter ibf;
+		HashPseudoRandom hash;
 		
 		for(int t=0; t < TRIALS; ++t){
-			 keys = Utilities.createKeys(NUMBER_OF_KEYS);
-			 ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE, keys);
+ 			hash = new HashPseudoRandom(); 
+			keys = Utilities.createKeys(NUMBER_OF_KEYS);
 			 
-			 diff = ibf.getPureKeys();
+			ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash, keys);
+			 
+			diff = ibf.getPureKeys();
 			
 			if (!ibf.isEmpty()){ //Was unable to decode the ibf, there are still elements
 				counter++;
@@ -120,8 +134,9 @@ public class InvertibleBloomFilterTest {
 	@Test
 	public void testSubtract() throws Exception {
 		String key = Utilities.createKey();
-		InvertibleBloomFilter ibf1 = new InvertibleBloomFilter(HASH_COUNT, SIZE);
-		InvertibleBloomFilter ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE);
+		HashPseudoRandom hash = new HashPseudoRandom();
+		InvertibleBloomFilter ibf1 = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash);
+		InvertibleBloomFilter ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash);
 		InvertibleBloomFilter ibf_sub;
 		
 		ibf1.insert(key);
@@ -138,16 +153,17 @@ public class InvertibleBloomFilterTest {
 		int additional = 10;
 		Set<String> keys;
 		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
+		HashPseudoRandom hash = new HashPseudoRandom();
 		
 		keys = Utilities.createKeys(NUMBER_OF_KEYS);
-		ibf1 = new InvertibleBloomFilter(HASH_COUNT, SIZE, keys);
-		ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE, keys);
+		ibf1 = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash, keys);
+		ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash, keys);
 		
 		ibf_sub = ibf1.subtract(ibf2);
 		assertEquals(0, ibf_sub.getPureKeys().size());
 		
 		keys = Utilities.createKeys(additional, keys);
-		ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE, keys);
+		ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash, keys);
 
 		ibf_sub = ibf1.subtract(ibf2);
 		assertEquals(additional, ibf_sub.getPureKeys().size());
@@ -155,10 +171,11 @@ public class InvertibleBloomFilterTest {
 	
 	@Test
 	public void testIsEquivalent(){
-		InvertibleBloomFilter ibf1 = new InvertibleBloomFilter(HASH_COUNT, SIZE);
-		InvertibleBloomFilter ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE);
-		InvertibleBloomFilter ibf3 = new InvertibleBloomFilter(HASH_COUNT+1, SIZE);
-		InvertibleBloomFilter ibf4 = new InvertibleBloomFilter(HASH_COUNT, SIZE+1);
+		HashPseudoRandom hash = new HashPseudoRandom();
+		InvertibleBloomFilter ibf1 = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash);
+		InvertibleBloomFilter ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE, hash);
+		InvertibleBloomFilter ibf3 = new InvertibleBloomFilter(HASH_COUNT+1, SIZE, hash);
+		InvertibleBloomFilter ibf4 = new InvertibleBloomFilter(HASH_COUNT, SIZE+1, hash);
 
 		assertEquals(true, ibf1.isEquivalent(ibf2));
 		assertEquals(false,  ibf1.isEquivalent(ibf3));

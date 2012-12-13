@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import bloom.filters.InvertibleBloomFilter;
+import bloom.hash.Hash;
 
 public class StrataEstimator implements Estimator{
 
@@ -16,33 +17,42 @@ public class StrataEstimator implements Estimator{
 	private int ibfSize;
 	private int hashCount;
 	private int strata;
+	private Hash hash;
 	
-	public StrataEstimator(){
-		this(STRATA, new HashSet<String>(), IBFSIZE, HASH_COUNT);
+	//TODO remove
+	private int[] distro;
+	
+	public StrataEstimator(Hash hash){
+		this(STRATA, new HashSet<String>(), IBFSIZE, HASH_COUNT, hash);
 	}
 	
-	public StrataEstimator(int strata){
-		this(strata, new HashSet<String>(), IBFSIZE, HASH_COUNT);
+	public StrataEstimator(int strata, Hash hash){
+		this(strata, new HashSet<String>(), IBFSIZE, HASH_COUNT, hash);
 	}
 	
-	public StrataEstimator(int strata, Set<String> keys){
-		this(strata, keys, IBFSIZE, HASH_COUNT);
+	public StrataEstimator(int strata, Set<String> keys, Hash hash){
+		this(strata, keys, IBFSIZE, HASH_COUNT, hash);
 	}
 	
-	public StrataEstimator(int strata, Set<String> keys, int ibfSize){
-		this(strata, keys, ibfSize, HASH_COUNT);
+	public StrataEstimator(int strata, Set<String> keys, int ibfSize, Hash hash){
+		this(strata, keys, ibfSize, HASH_COUNT, hash);
 	}
 		
-	public StrataEstimator(int strata, Set<String> keys, int ibfSize, int hashCount){
+	public StrataEstimator(int strata, Set<String> keys, int ibfSize, int hashCount, Hash hash){
 		this.ibfSize = ibfSize;
 		this.hashCount = hashCount;
 		this.strata = strata;
-		
+		this.hash = hash;
 		bloomfilters = new InvertibleBloomFilter[strata];
 		for(int i=0; i < strata; ++i){
-			bloomfilters[i] = new InvertibleBloomFilter(hashCount, ibfSize);
+			bloomfilters[i] = new InvertibleBloomFilter(hashCount, ibfSize, hash);
 		}
-				
+		
+		//TODO remove
+		distro = new int[strata];
+		for (int i=0; i < strata; ++i)
+			distro[i] = 0;
+		
 		insert(keys);
 	}
 		
@@ -66,6 +76,9 @@ public class StrataEstimator implements Estimator{
 	public void insert(String key){
 		int trailingZeros = getNumberOfTrailingZeros(key);
 		bloomfilters[trailingZeros].insert(key);
+		
+		//TODO remove
+		this.distro[trailingZeros] += 1;
 	}
 	
 	public void insert(Set<String> keys){
@@ -77,11 +90,14 @@ public class StrataEstimator implements Estimator{
 	public void remove(String key){
 		int trailingZeros = getNumberOfTrailingZeros(key);
 		bloomfilters[trailingZeros].remove(key);
+		
+		//TODO remove
+		this.distro[trailingZeros] -= 1;
 	}
 
 	private int getNumberOfTrailingZeros(String key){
+		int hashCode = this.hash.getHashCode(key);
 		//int hashCode =  (int) (HashFunction.fnv1Hash(key)%Math.pow(2,STRATA));
-		int hashCode =  key.hashCode();
 		int counter = STRATA-1;
 		while (hashCode > 0){
 			hashCode = hashCode/2;
@@ -123,5 +139,11 @@ public class StrataEstimator implements Estimator{
 	
 	public boolean isEquivalent(StrataEstimator se){
 		return this.getSize() == se.getSize() && this.getStrata() == se.getStrata() && this.getHashCount() == se.getHashCount();
+	}
+	
+	public void printDistro(){
+		for(int d : distro)
+			System.out.print(d+", ");
+		System.out.println("\n");
 	}
 }

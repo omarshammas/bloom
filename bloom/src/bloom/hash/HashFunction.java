@@ -3,12 +3,21 @@ package bloom.hash;
 import java.math.BigInteger;
 import java.util.Random;
 
-public class HashFunction {
+public class HashFunction implements Hash {
 	//Static constant members
 	private static final BigInteger FNV_PRIME =  new BigInteger("16777619");
 	private static final BigInteger FNV_OFFSET_BASIS = new BigInteger("2166136261");
 	private static final BigInteger MOD = new BigInteger("4294967296");
 	private static final int P = 2147483647;
+	
+	
+	public HashFunction(){}
+	
+	public void print() {}
+	
+	public int getHashCode(String key){
+		return 0;
+	}
 	
 	/**
 	 * Computes a single hash value mod m using
@@ -43,7 +52,7 @@ public class HashFunction {
 	 * @param m		Modulus value
 	 * @return		An array of size K with hash values [0, m-1]
 	 */
-	public static int[] hash(String key,int k, int m){
+	public int[] hash(String key,int k, int m){
 		int[] hashes = new int[k];
 		for(int ii = 0; ii < k; ii++){
 			long h1 = fnv1Hash(key);
@@ -145,6 +154,5 @@ public class HashFunction {
 		
 		return (long)(hash & 0x00000000ffffffffL);
 	}
-
 
 }

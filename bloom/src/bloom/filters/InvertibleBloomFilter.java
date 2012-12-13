@@ -2,7 +2,7 @@ package bloom.filters;
 
 import java.util.*;
 
-import bloom.hash.HashFunction;
+import bloom.hash.Hash;
 
 public class InvertibleBloomFilter {
 	//Constants
@@ -13,12 +13,13 @@ public class InvertibleBloomFilter {
 	private int hashCount;
 	private int size;
 	private Cell[] filter;
+	private Hash hash;
 	
 	/**
 	 * Default Constructor
 	 */
-	public InvertibleBloomFilter(){
-		this(HASH_COUNT, SIZE);
+	public InvertibleBloomFilter(Hash hash){
+		this(HASH_COUNT, SIZE, hash);
 	}
 	
 	/**
@@ -26,13 +27,14 @@ public class InvertibleBloomFilter {
 	 * @param hashCount
 	 * @param size
 	 */
-	public InvertibleBloomFilter(int hashCount, int size){
-		this(hashCount, size, new HashSet<String>());
+	public InvertibleBloomFilter(int hashCount, int size, Hash hash){
+		this(hashCount, size, hash, new HashSet<String>());
 	}
 	
-	public InvertibleBloomFilter(int hashCount, int size, Set<String> keys){
+	public InvertibleBloomFilter(int hashCount, int size, Hash hash, Set<String> keys){
 		this.hashCount = hashCount;
 		this.size = size;
+		this.hash = hash;
 		filter = new Cell[size];
 		for(int i=0; i < size; ++i){
 			filter[i] = new Cell();
@@ -66,7 +68,7 @@ public class InvertibleBloomFilter {
 	}
 		
 	public void insert(String key){		
-		int[] hashes = HashFunction.hash(key, hashCount, size);
+		int[] hashes = this.hash.hash(key, hashCount, size);
 		
 		for (int i : hashes){
 			filter[i].add(key);
@@ -80,7 +82,7 @@ public class InvertibleBloomFilter {
 	}
 	
 	public void remove(String key){				
-		int[] hashes = HashFunction.hash(key, hashCount, size);
+		int[] hashes = this.hash.hash(key, hashCount, size);
 		
 		for (int i : hashes){
 			filter[i].remove(key);
@@ -88,7 +90,7 @@ public class InvertibleBloomFilter {
 	}
 	
 	public boolean find(String key){
-		int[] hashes = HashFunction.hash(key, hashCount, size);
+		int[] hashes = this.hash.hash(key, hashCount, size);
 		for (int i : hashes){
 			if (filter[i].isEmpty())
 				return false;
@@ -118,7 +120,7 @@ public class InvertibleBloomFilter {
 		if(!this.isEquivalent(ibf))
 			throw new Exception("IBFs are not equivalent!");
 		
-		InvertibleBloomFilter diff = new InvertibleBloomFilter(this.getHashCount(), this.getSize());
+		InvertibleBloomFilter diff = new InvertibleBloomFilter(this.getHashCount(), this.getSize(), this.hash);
 		for(int i=0; i < ibf.getSize(); ++i)
 			diff.setCell(i, Cell.subtract( this.getCell(i), ibf.getCell(i)));
 		
