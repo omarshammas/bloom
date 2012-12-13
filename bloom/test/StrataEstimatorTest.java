@@ -2,87 +2,55 @@ import static org.junit.Assert.*;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import org.junit.Test;
 
 import bloom.dd.StrataEstimator;
-
+import bloom.utils.Utilities;
 
 public class StrataEstimatorTest {
 
-	static int HASH_COUNT = 3;
-	static int STRATA = 32;
-	static int NUMBER_OF_FILES = 300000;
-	static int SIZE = 80; 
-	
+	public static final int TRIALS = 100;
+	public static final int HASH_COUNT = 3;
+	public static final int STRATA = 32;
+	public static final int NUMBER_OF_KEYS = 10000;
+	public static final int IBFSIZE = 80; 
+		
 	
 	@Test
 	public void testConstructor() {
-		Set<String> files = createFileNames(NUMBER_OF_FILES);
-		StrataEstimator se = new StrataEstimator(STRATA, files, SIZE, HASH_COUNT);
+		Set<String> keys = Utilities.createKeys(NUMBER_OF_KEYS);
+		StrataEstimator se = new StrataEstimator(STRATA, keys, IBFSIZE, HASH_COUNT);
 		
 		assertEquals(HASH_COUNT, se.getHashCount());
 		assertEquals(STRATA, se.getStrata());
-		assertEquals(SIZE, se.getSize());
+		assertEquals(IBFSIZE, se.getSize());
 	}
 	
 	@Test
-	public void testEstimateDifferenceWithEqualSets() {
-		Set<String> files = createFileNames(NUMBER_OF_FILES);
-		StrataEstimator se1 = new StrataEstimator(STRATA, files, SIZE, HASH_COUNT);
-		StrataEstimator se2 = new StrataEstimator(STRATA, files, SIZE, HASH_COUNT);
+	public void testEstimateDifferenceWithEqualSets() throws Exception {
+		Set<String> keys = Utilities.createKeys(NUMBER_OF_KEYS);
+		StrataEstimator se1 = new StrataEstimator(STRATA, keys, IBFSIZE, HASH_COUNT);
+		StrataEstimator se2 = new StrataEstimator(STRATA, keys, IBFSIZE, HASH_COUNT);
 				
-		int difference = 0;
-		try {
-			difference = StrataEstimator.estimateDifference(se1, se2);
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Failed to estimate the difference");
-		}
+		int difference = se1.estimateDifference(se2);
 		assertEquals(0, difference);
 	}
 	
-	
 	@Test
-	public void testEstimateDifferenceWithDifferentSets() {
+	public void testEstimateDifferenceWithDifferentSets() throws Exception {
 		int additional1 = 100, additional2 = 0;
-		Set<String> files = createFileNames(NUMBER_OF_FILES);
-		Set<String> files1 = createFileNames(additional1);
-		Set<String> files2 = createFileNames(additional2);
-//		Set<String> union = new HashSet<String>();
-//		union.addAll(files1);
-//		union.addAll(files2);
-//		assertEquals(2*NUMBER_OF_FILES-union.size(), difference);
+		Set<String> keys = Utilities.createKeys(NUMBER_OF_KEYS);
+		Set<String> keys1 = Utilities.createKeys(additional1, keys);
+		Set<String> keys2 = Utilities.createKeys(additional2, keys); 
+		Set<String> keysdiff = new HashSet<String>(keys1);
+		keysdiff.removeAll(keys2);
 		
-		StrataEstimator se1 = new StrataEstimator(STRATA, files, SIZE, HASH_COUNT);
-		for (String file : files1)
-			se1.insert(file);
-		
-		StrataEstimator se2 = new StrataEstimator(STRATA, files, SIZE, HASH_COUNT);
-		for (String file : files2)
-			se2.insert(file);
-		
-		se1.printDistro();
-		se2.printDistro();
+		StrataEstimator se1 = new StrataEstimator(STRATA, keys1, IBFSIZE, HASH_COUNT);		
+		StrataEstimator se2 = new StrataEstimator(STRATA, keys2, IBFSIZE, HASH_COUNT);
 				
-		int difference = 0;
-		try {
-			difference = StrataEstimator.estimateDifference(se1, se2);
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Failed to estimate the difference");
-		}
-		System.out.println("Estimated: "+difference+", Actual: "+(additional1+additional2) );
-		assertEquals(additional1+additional2, difference);
+		int difference = se1.estimateDifference(se2);
+		System.out.println("Actual: "+keysdiff.size()+"Estimated: "+difference);
+		assertEquals(keysdiff.size(), difference);
 	}
-	
-	private Set<String> createFileNames(int number){
-		Set<String> files = new HashSet<String>(number);
-		while (files.size() < number){
-			files.add( UUID.randomUUID().toString().substring(0,10) );	
-		}	
-		return files;
-	}
-
 }

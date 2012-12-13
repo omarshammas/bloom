@@ -89,7 +89,7 @@ public class InvertibleBloomFilterTest {
 	}
 	
 	//TODO uncomment
-	//@Test
+	@Test
 	public void testGetPureKeysWithMultipleItems() {
 		int counter = 0;
 		Set<String> keys, diff;

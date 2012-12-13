@@ -29,11 +29,12 @@ public class Utilities {
 	}
 	
 	public static Set<String> createKeys(int additional, Set<String> keys, int keyLength){
-		int start = keys.size();
-		while (keys.size() < (start+additional) ){
-			keys.add( createKey(keyLength) );
+		Set<String> new_keys = new HashSet<String>(keys);
+		int start = new_keys.size();
+		while (new_keys.size() < (start+additional) ){
+			new_keys.add( createKey(keyLength) );
 		}	
-		return keys;
+		return new_keys;
 	}
 
 }
