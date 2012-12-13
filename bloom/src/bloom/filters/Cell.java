@@ -54,4 +54,20 @@ public class Cell {
 		String result = sb.toString();
 		return result;
 	}
+	
+	public String getIdSum() {
+		return idSum;
+	}
+
+	public void setIdSum(String idSum) {
+		this.idSum = idSum;
+	}
+
+	public int getHashSum() {
+		return hashSum;
+	}
+
+	public void setHashSum(int hashSum) {
+		this.hashSum = hashSum;
+	}
 }

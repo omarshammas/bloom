@@ -13,17 +13,15 @@ public class CellTest {
 	@Test
 	public void testConstructor(){
 		Cell c = new Cell();
-		assertEquals(c.count, 0);
-		assertEquals(c.idSum, Cell.INITIAL_ID_SUM);
-		assertEquals(c.hashSum, Cell.INITIAL_HASH_SUM);
+		assertEquals(c.getIdSum(), Cell.INITIAL_ID_SUM);
+		assertEquals(c.getHashSum(), Cell.INITIAL_HASH_SUM);
 	}
 	
 	@Test
 	public void testAdd() {
 		Cell c = new Cell();
 		c.add(KEY);
-		assertEquals(1, c.count);
-		assertEquals(Cell.INITIAL_HASH_SUM^KEY.hashCode(), c.hashSum);
+		assertEquals(Cell.INITIAL_HASH_SUM^KEY.hashCode(), c.getHashSum());
 	}
 
 	@Test
@@ -31,9 +29,8 @@ public class CellTest {
 		Cell c = new Cell();
 		c.add(KEY);
 		c.remove(KEY);
-		assertEquals(c.count, 0);
-		assertEquals(c.idSum, Cell.INITIAL_ID_SUM);
-		assertEquals(c.hashSum, Cell.INITIAL_HASH_SUM);
+		assertEquals(c.getIdSum(), Cell.INITIAL_ID_SUM);
+		assertEquals(c.getHashSum(), Cell.INITIAL_HASH_SUM);
 		
 	}
 	
@@ -84,9 +81,8 @@ public class CellTest {
 		
 		Cell c = Cell.subtract(c1, c2);
 		
-		assertEquals(c.count, 0);
-		assertEquals(c.hashSum, c1.hashSum ^ c2.hashSum ^ Cell.INITIAL_HASH_SUM);
-		assertEquals(c.idSum, Cell.XOR(Cell.XOR(c1.idSum, c2.idSum), Cell.INITIAL_ID_SUM));
+		assertEquals(c.getHashSum(), c1.getHashSum() ^ c2.getHashSum() ^ Cell.INITIAL_HASH_SUM);
+		assertEquals(c.getIdSum(), Cell.XOR(Cell.XOR(c1.getIdSum(), c2.getIdSum()), Cell.INITIAL_ID_SUM));
 	}
 
 }
