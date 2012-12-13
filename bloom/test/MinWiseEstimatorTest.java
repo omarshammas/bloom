@@ -8,6 +8,7 @@ import org.junit.Test;
 import bloom.dd.HybridEstimator;
 import bloom.dd.MinWiseEstimator;
 import bloom.dd.StrataEstimator;
+import bloom.utils.Utilities;
 
 
 public class MinWiseEstimatorTest {
@@ -17,15 +18,15 @@ public class MinWiseEstimatorTest {
 	public void testConstructors(){
 		//TODO: Find a way to test if constructor works
 		MinWiseEstimator estimator = new MinWiseEstimator();
-		estimator = new MinWiseEstimator(randomSet(100));
+		estimator = new MinWiseEstimator(Utilities.createKeys(100));
 	}
 	
 	@Test
 	public void testInsert(){
 		//TODO: Find a way to test if inserts are succeeding
 		MinWiseEstimator estimator = new MinWiseEstimator();
-		estimator.insert(randomString());
-		estimator.insert(randomSet(100));
+		estimator.insert(Utilities.createKey());
+		estimator.insert(Utilities.createKeys(100));
 	}
 	
 	@Test
@@ -89,17 +90,4 @@ public class MinWiseEstimatorTest {
 			System.out.print(" | "+(diffA.size()/(float)d)+"\n");
 		}
 	}
-	
-//Private Methods
-	private Set<String> randomSet(int size){
-		Set<String> keys = new HashSet<String>(size);
-		while (keys.size() < size)
-			keys.add( UUID.randomUUID().toString().substring(0,10) );		
-		return keys;
-	}
-	
-	private String randomString(){
-		return UUID.randomUUID().toString().substring(0,10);
-	}
-	
 }
