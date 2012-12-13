@@ -109,54 +109,55 @@ public class Main {
 	}
 	
 	//num keys shouldn't matter, as shown by the tuning IBF results, what matter is the difference between sets
-//	public static void correctionOverhead(int num_keys, int num_strata, int num_hash_functions){
-//		int trials = 20;
-//		int[] deltas = {10, 100, 1000, 10000}; //, 100000};
-//		int[] cell_sizes = {20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160};
-//		StrataEstimator se1, se2;
-//		Set<String> files_base, files_different;
-//		double difference = 0;
-//		double[][] results = new double[deltas.length][cell_sizes.length];
-//		
-//		
-//		for (int i=0; i < deltas.length; ++i)
-//			for (int j=0; j < cell_sizes.length; ++j)
-//				results[i][j] = 0;
-//		
-//		for (int i=0; i < deltas.length; ++i){
-//			
-//			System.out.println("Computing Correction Overhead for Delta of " + deltas[i] + " for Strata Estimators with varying IBF sizes.");
-//			for (int t=0; t < trials; ++t){
-//				files_base = Utilities.createKeys(num_keys);
-//				files_different = new HashSet<String>(files_base);
-//				files_different = Utilities.createKeys(deltas[i], files_different);
-//				
-//				for (int j=0; j < cell_sizes.length; ++j){
-//					se1 = new StrataEstimator(num_strata, files_base, cell_sizes[j], num_hash_functions);
-//					se2 = new StrataEstimator(num_strata, files_different, cell_sizes[j], num_hash_functions);
-//					
-//					difference = 0;
-//					try {
-//						difference = se1.estimateDifference(se2);
-//					} catch (Exception e) {
-//						System.out.println(deltas[i]+" - "+cell_sizes[j]+" : Strata estimator was unable to deocde");
-//					}
-//					
-//					results[i][j] += (float) deltas[i] / (float) difference;				
-//				}
-//			}
-//		}
-//		
-//		System.out.println("-----Results----");
-//		for (int i=0; i < deltas.length; ++i){
-//			for (int j=0; j < cell_sizes.length; ++j){
-//				results[i][j] /= (double) trials;
-//				System.out.print(results[i][j] + ", ");
-//			}
-//			System.out.println("");
-//		}		
-//	}
-//	
+	public static void correctionOverhead(int num_keys, int num_strata, int num_hash_functions){
+		int trials = 20;
+		int[] deltas = {10, 100, 1000, 10000}; //, 100000};
+		int[] cell_sizes = {20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160};
+		StrataEstimator se1, se2;
+		Hash hash;
+		Set<String> keys1, keys2;
+		double difference = 0;
+		double[][] results = new double[deltas.length][cell_sizes.length];
+		
+		
+		for (int i=0; i < deltas.length; ++i)
+			for (int j=0; j < cell_sizes.length; ++j)
+				results[i][j] = 0;
+		
+		for (int i=0; i < deltas.length; ++i){
+			
+			System.out.println("Computing Correction Overhead for Delta of " + deltas[i] + " for Strata Estimators with varying IBF sizes.");
+			for (int t=0; t < trials; ++t){
+				keys1 = Utilities.createKeys(num_keys);
+				keys2 = Utilities.createKeys(deltas[i], keys1);
+				
+				for (int j=0; j < cell_sizes.length; ++j){
+					hash = new HashPseudoRandom();
+					se1 = new StrataEstimator(num_strata, keys1, cell_sizes[j], num_hash_functions, hash);
+					se2 = new StrataEstimator(num_strata, keys2, cell_sizes[j], num_hash_functions, hash);
+					
+					difference = 0;
+					try {
+						difference = se1.estimateDifference(se2);
+					} catch (Exception e) {
+						System.out.println(deltas[i]+" - "+cell_sizes[j]+" : Strata estimator was unable to deocde");
+					}
+					
+					results[i][j] += (float) deltas[i] / (float) difference;				
+				}
+			}
+		}
+		
+		System.out.println("-----Results----");
+		for (int i=0; i < deltas.length; ++i){
+			for (int j=0; j < cell_sizes.length; ++j){
+				results[i][j] /= (double) trials;
+				System.out.print(results[i][j] + ", ");
+			}
+			System.out.println("");
+		}		
+	}
+	
 	
 	
     public static void main(String[] args) {
