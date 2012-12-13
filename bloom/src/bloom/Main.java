@@ -9,6 +9,51 @@ import bloom.utils.Utilities;
 
 public class Main {
 	
+	
+	public static void tuningIBF(int num_hash_functions, int num_cells){
+		int trials = 100;
+		int[] keys_sizes = {100,1000,10000,100000,1000000};
+		int[] deltas = {0,5,10,15,20,25,30,35,40,45,50};
+		InvertibleBloomFilter ibf1, ibf2;
+		Set<String> keys1, keys2, keysdiff;
+		double success;
+		
+		for (int i=0; i < keys_sizes.length; ++i){
+			for (int j=0; j < deltas.length; ++j){
+				
+				success = 0;
+				for (int t=0; t < trials; ++t){
+					keys1 = Utilities.createKeys(keys_sizes[i]);
+					keys2 = Utilities.createKeys(deltas[i], keys1);
+					
+					ibf1 = new InvertibleBloomFilter(num_hash_functions, num_cells, keys1);
+					ibf2 = new InvertibleBloomFilter(num_hash_functions, num_cells, keys2);
+					
+					try {
+						ibf1.subtract(ibf2);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					keysdiff = ibf1.getPureKeys();
+					if (deltas[i] == 0){
+						success += (double) keysdiff.size();
+					} else {
+						success += (double) keysdiff.size() / (double) deltas[i];
+					}
+				}
+				
+				System.out.println( (success/trials) + ", ");
+			}
+			System.out.println("/n");
+		}
+		
+		
+		
+	}
+	
+	
+	
 //	public static void tuningIBF(int num_hash_functions, int num_cells){
 //		int trials = 100;
 //		int[] keys_sizes = {100,1000,10000,100000,1000000};
