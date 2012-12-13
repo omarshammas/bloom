@@ -2,13 +2,13 @@ package bloom.filters;
 
 public class Cell {
 	//Constants
-	public static String INITIAL_ID_SUM = "    ";
+	public static String INITIAL_ID_SUM = "    "; //32 bits
 	public static int INITIAL_HASH_SUM = INITIAL_ID_SUM.hashCode();
 	
 	//Private Members
 	private String idSum;
 	private int hashSum;
-	private int count;
+	private byte count;
 	
 	public Cell(){
 		idSum = INITIAL_ID_SUM;
@@ -44,7 +44,7 @@ public class Cell {
 		Cell c = new Cell();
 		c.idSum = XOR(XOR(c1.idSum, c2.idSum), INITIAL_ID_SUM);
 		c.hashSum = c1.hashSum ^ c2.hashSum ^ INITIAL_HASH_SUM;
-		c.count = c1.count - c2.count;
+		c.count = (byte) (c1.count - c2.count);
 		return c;
 	}
 	
@@ -80,7 +80,7 @@ public class Cell {
 		return count;
 	}
 	
-	public void setCount(int count) {
+	public void setCount(byte count) {
 		this.count = count;
 	}
 }
