@@ -108,9 +108,7 @@ public class StrataEstimator implements Estimator{
 		int difference = 0;
 		
 		for(int i = STRATA-1; i >= 0; i--){
-			//TODO change subtract to an instance method
-			ibf = InvertibleBloomFilter.subtract(this.getIBF(i), se.getIBF(i));
-			
+			ibf = this.getIBF(i).subtract(se.getIBF(i));
 			keys = ibf.getPureKeys();
 			
 			if(!ibf.isEmpty()){

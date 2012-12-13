@@ -14,10 +14,10 @@ import bloom.filters.InvertibleBloomFilter;
 
 public class InvertibleBloomFilterTest {
 	
-	static int HASH_COUNT = 3;
-	static int SIZE = 1000;
-	static String KEY = "teststring";
-	static int NUMBER_OF_FILES = 100;
+	public static final int HASH_COUNT = 3;
+	public static final int SIZE = 1000;
+	public static final String KEY = "teststring";
+	public static final int NUMBER_OF_FILES = 100;
 	
 	@Test
 	public void testConstructor() {

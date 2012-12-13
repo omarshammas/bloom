@@ -98,7 +98,6 @@ public class InvertibleBloomFilter {
 	
 	//TODO this function is destructive, either change or emphasize
 	public Set<String> getPureKeys() {
-		
 		Set<String> difference = new HashSet<String>();
 		ArrayList<Integer> pureCells = new ArrayList<Integer>();
 		Integer index;
@@ -115,14 +114,13 @@ public class InvertibleBloomFilter {
 		return difference;
 	}
 	
-	//TODO change to instance method
-	public static InvertibleBloomFilter subtract(InvertibleBloomFilter ibf1, InvertibleBloomFilter ibf2){
-		assert ibf1.isEquivalent(ibf2);
+	public InvertibleBloomFilter subtract(InvertibleBloomFilter ibf) throws Exception{
+		if(!this.isEquivalent(ibf))
+			throw new Exception("IBFs are not equivalent!");
 		
-		InvertibleBloomFilter diff = new InvertibleBloomFilter(ibf1.getHashCount(), ibf1.getSize());
-		
-		for (int i=0; i < ibf1.getSize(); ++i)
-			diff.setCell(i, Cell.subtract(ibf1.getCell(i), ibf2.getCell(i)));
+		InvertibleBloomFilter diff = new InvertibleBloomFilter(this.getHashCount(), this.getSize());
+		for(int i=0; i < ibf.getSize(); ++i)
+			diff.setCell(i, Cell.subtract( this.getCell(i), ibf.getCell(i)));
 		
 		return diff;
 	}
