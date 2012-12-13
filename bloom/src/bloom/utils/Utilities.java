@@ -31,7 +31,7 @@ public class Utilities {
 	public static Set<String> createKeys(int additional, Set<String> keys, int keyLength){
 		int start = keys.size();
 		while (keys.size() < (start+additional) ){
-			keys.add( UUID.randomUUID().toString().substring(0,keyLength) );
+			keys.add( createKey(keyLength) );
 		}	
 		return keys;
 	}

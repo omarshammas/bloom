@@ -7,8 +7,8 @@ import bloom.filters.Cell;
 
 public class CellTest {
 
-	static String KEY = "teststring";
-	static String KEY2 = "TESTstring";
+	static String KEY = "test";
+	static String KEY2 = "TEST";
 	
 	@Test
 	public void testConstructor(){
