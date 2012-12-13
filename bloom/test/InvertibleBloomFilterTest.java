@@ -1,23 +1,19 @@
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
 
-import com.sun.tools.internal.ws.processor.modeler.wsdl.PseudoSchemaBuilder;
 
 import bloom.filters.InvertibleBloomFilter;
-import bloom.hash.Hash;
-import bloom.hash.HashFunction;
 import bloom.hash.HashPseudoRandom;
 import bloom.utils.Utilities;
 
 
 public class InvertibleBloomFilterTest {
 	
-	public static final int TRIALS = 100;
+	public static final int TRIALS = 1000;
 	public static final int NUMBER_OF_KEYS = 100;
 	public static final int SIZE = (int) (1.5*NUMBER_OF_KEYS);
 	public static final int HASH_COUNT = 3;
