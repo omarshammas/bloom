@@ -59,7 +59,13 @@ public class MinWiseEstimatorTest {
 			inter.retainAll(setB);
 			float jCoeff = ((float)inter.size())/union.size();
 			System.out.print(jCoeff);
-			int d = estimatorA.estimateDifference(estimatorB);
+			int d = -1;
+			try {
+				d = estimatorA.estimateDifference(estimatorB);
+			} catch (Exception e) {
+				e.printStackTrace();
+				assertTrue(false);
+			}
 			Set<String> diffA = new HashSet<String>(setA);
 			diffA.removeAll(setB);
 			System.out.print(" | "+diffA.size());

@@ -1,34 +1,31 @@
 package bloom.dd;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 import bloom.filters.InvertibleBloomFilter;
 
 public class DifferenceDigest {
+	//Enum of estimator type
+	public enum EstimatorType {
+		STRATA,
+		MINWISE,
+		HYBRID
+	}
 	//Constants
+	public static final EstimatorType ESTIMATOR_TYPE = EstimatorType.HYBRID;
 	public static final int HASH_COUNT = 4;
 	
 	// Members
 	private Estimator estimator;
 	private Set<String> keys;
-	
-	// Setters and Getters
-	public Estimator getEstimator() {
-		return estimator;
-	}
+	private EstimatorType estimatorType;
 
-	public void setEstimator(Estimator estimator) {
-		this.estimator = estimator;
-	}
-	
 	/**
 	 * Default Constructor
 	 */
 	public DifferenceDigest(){
-		this.keys = new HashSet<String>();
-		estimator = new Estimator();
+		this(new HashSet<String>(),ESTIMATOR_TYPE);
 	}
 	
 	/**
@@ -37,8 +34,28 @@ public class DifferenceDigest {
 	 * @param keys	Set of keys to initialize Difference Digest with
 	 */
 	public DifferenceDigest(Set<String> keys){
+		this(keys, ESTIMATOR_TYPE);
+	}
+	
+	/**
+	 * Constructor initializes Difference Digest with a set of keys
+	 *  
+	 * @param keys	Set of keys to initialize Difference Digest with
+	 */
+	public DifferenceDigest(Set<String> keys, EstimatorType type){
 		this.keys = new HashSet<String>(keys);
-		estimator = new Estimator(keys);
+		switch(type){
+			case STRATA:
+				//TODO: Modify constructor for new strata variable
+				estimator = new StrataEstimator(7, keys);
+				break;
+			case MINWISE:
+				estimator = new MinWiseEstimator(keys);
+				break;
+			default:
+				estimator = new MinWiseEstimator(keys);
+				break;
+		}
 	}
 	
 	/***
@@ -67,9 +84,10 @@ public class DifferenceDigest {
 	 * 
 	 * @param estimator Estimator is used to calculate the set difference size
 	 * @return			Invertible Bloom Filter representing current set of keys
+	 * @throws Exception 
 	 */
-	public InvertibleBloomFilter getDifferenceIBF(Estimator estimator){
-		int d = this.estimator.estimateDifference(estimator);	
+	public InvertibleBloomFilter getDifferenceIBF(Estimator estimator) throws Exception{
+		int d = this.estimator.estimateDifference(estimator);
 		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT,d,keys);
 		return ibf;
 	}
@@ -87,6 +105,23 @@ public class DifferenceDigest {
 		InvertibleBloomFilter diff = InvertibleBloomFilter.subtract(ibfB, ibfA);
 		
 		return diff.getPureKeys();
+	}
+	
+	// Setters and Getters
+	public Estimator getEstimator() {
+		return estimator;
+	}
+
+	public void setEstimator(Estimator estimator) {
+		this.estimator = estimator;
+	}
+	
+	public EstimatorType getEstimatorType() {
+		return estimatorType;
+	}
+
+	public void setEstimatorType(EstimatorType estimatorType) {
+		this.estimatorType = estimatorType;
 	}
 	
 }
