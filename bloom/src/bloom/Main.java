@@ -1,37 +1,21 @@
 package bloom;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import bloom.dd.StrataEstimator;
 import bloom.filters.InvertibleBloomFilter;
+import bloom.utils.Utilities;
 
 public class Main {
-
-
-	public static Set<String> createFileNames(int number){
-		return createFileNames(number, new HashSet<String>(number));
-	}
-	
-	public static Set<String> createFileNames(int additional, Set<String> files){
-		int start = files.size();
-		while (files.size() < (start+additional) ){
-			files.add( UUID.randomUUID().toString().substring(0,10) );	//TODO allow for generic size, not just 10
-		}	
-		return files;
-	}
-	
 	
 	public static void tuningIBF(int num_hash_functions, int num_cells){
 		int trials = 100;
 		int[] keys_sizes = {100,1000,10000,100000,1000000};
 		int[] deltas = {0,5,10,15,20,25,30,35,40,45,50};
 		
-		Set<String> files_base, files_different;
+		Set<String> files_base, files_different, difference;
 		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
-		ArrayList<String> difference;
 		int realDiff, calcDiff;
 		float success, success_total;
 		
@@ -41,12 +25,12 @@ public class Main {
 				success_total = 0;
 				for (int t=0; t < trials; ++t){
 					
-					files_base = createFileNames(keys_sizes[i]);
+					files_base = Utilities.createKeys(keys_sizes[i]);
 					files_different = new HashSet<String>(files_base);
 					ibf1 = new InvertibleBloomFilter(num_hash_functions, num_cells, files_base);
 					
 					files_different = new HashSet<String>(files_base);
-					files_different = createFileNames(deltas[j], files_different);
+					files_different = Utilities.createKeys(deltas[j], files_different);
 					ibf2 = new InvertibleBloomFilter(num_hash_functions, num_cells, files_different);
 					
 					ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
@@ -75,8 +59,7 @@ public class Main {
 		int[] deltas = {0,5,10,15,20,25,30,35,40,45,50};
 		int[] hashCount = {2,3,4,5,6};
 		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
-		Set<String> files_base, files_different;
-		ArrayList<String> decoded_files;
+		Set<String> files_base, files_different,decoded_files;
 		double[][] results = new double[deltas.length][hashCount.length];
 		
 		for (int i=0; i < deltas.length; ++i)
@@ -87,9 +70,9 @@ public class Main {
 			System.out.println("Computing Decoding Probability for Delta of " + deltas[i] + " for varying hash counts using " + num_keys + " keys.");
 			for (int t=0; t < trials; ++t){
 				
-				files_base = createFileNames(num_keys-deltas[i]);
+				files_base = Utilities.createKeys(num_keys-deltas[i]);
 				files_different = new HashSet<String>(files_base);
-				files_different = createFileNames(deltas[i], files_different);
+				files_different = Utilities.createKeys(deltas[i], files_different);
 				
 				for (int j=0; j < hashCount.length; ++j){
 					ibf1 = new InvertibleBloomFilter(hashCount[j], num_cells, files_base);
@@ -136,9 +119,9 @@ public class Main {
 			
 			System.out.println("Computing Correction Overhead for Delta of " + deltas[i] + " for Strata Estimators with varying IBF sizes.");
 			for (int t=0; t < trials; ++t){
-				files_base = createFileNames(num_keys);
+				files_base = Utilities.createKeys(num_keys);
 				files_different = new HashSet<String>(files_base);
-				files_different = createFileNames(deltas[i], files_different);
+				files_different = Utilities.createKeys(deltas[i], files_different);
 				
 				for (int j=0; j < cell_sizes.length; ++j){
 					se1 = new StrataEstimator(num_strata, files_base, cell_sizes[j], num_hash_functions);
@@ -146,7 +129,7 @@ public class Main {
 					
 					difference = 0;
 					try {
-						difference = StrataEstimator.estimateDifference(se1, se2);
+						difference = se1.estimateDifference(se2);
 					} catch (Exception e) {
 						System.out.println(deltas[i]+" - "+cell_sizes[j]+" : Strata estimator was unable to deocde");
 					}
@@ -174,7 +157,7 @@ public class Main {
     public static void main(String[] args) {
 
     	
-    	//tuningIBF(4,50);   	
+    	tuningIBF(4,50);   	
     	//tuningHashCount(100, 50);
 		//correctionOverhead(100, 32, 4); //TODO enable throw exception otherwise results are completely off
     	
