@@ -9,96 +9,96 @@ import bloom.utils.Utilities;
 
 public class Main {
 	
-	public static void tuningIBF(int num_hash_functions, int num_cells){
-		int trials = 100;
-		int[] keys_sizes = {100,1000,10000,100000,1000000};
-		int[] deltas = {0,5,10,15,20,25,30,35,40,45,50};
-		
-		Set<String> files_base, files_different, difference;
-		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
-		int realDiff, calcDiff;
-		float success, success_total;
-		
-		for(int i=0; i < keys_sizes.length; ++i){			
-			for(int j=0; j < deltas.length; ++j){
-				
-				success_total = 0;
-				for (int t=0; t < trials; ++t){
-					
-					files_base = Utilities.createKeys(keys_sizes[i]);
-					files_different = new HashSet<String>(files_base);
-					ibf1 = new InvertibleBloomFilter(num_hash_functions, num_cells, files_base);
-					
-					files_different = new HashSet<String>(files_base);
-					files_different = Utilities.createKeys(deltas[j], files_different);
-					ibf2 = new InvertibleBloomFilter(num_hash_functions, num_cells, files_different);
-					
-					ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
-	
-					difference = ibf_sub.getPureKeys();
-					realDiff = files_different.size() - files_base.size();
-					calcDiff = difference.size();
-					success = 1 - Math.abs(realDiff-calcDiff)/(float)realDiff;
-					//System.out.println("Decoded a set of "+keys_sizes[i]+" with a difference of "+realDiff+". Estimate "+calcDiff + ". % Success "+success);
-					//System.out.println(success);
-					if(success == Double.NaN)
-						success = 1;
-					success_total += success;
-				}
-				System.out.println(success_total/trials);
-			}
-			
-			System.out.println("---------------------------");
-		}	
-		
-	}
+//	public static void tuningIBF(int num_hash_functions, int num_cells){
+//		int trials = 100;
+//		int[] keys_sizes = {100,1000,10000,100000,1000000};
+//		int[] deltas = {0,5,10,15,20,25,30,35,40,45,50};
+//		
+//		Set<String> files_base, files_different, difference;
+//		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
+//		int realDiff, calcDiff;
+//		float success, success_total;
+//		
+//		for(int i=0; i < keys_sizes.length; ++i){			
+//			for(int j=0; j < deltas.length; ++j){
+//				
+//				success_total = 0;
+//				for (int t=0; t < trials; ++t){
+//					
+//					files_base = Utilities.createKeys(keys_sizes[i]);
+//					files_different = new HashSet<String>(files_base);
+//					ibf1 = new InvertibleBloomFilter(num_hash_functions, num_cells, files_base);
+//					
+//					files_different = new HashSet<String>(files_base);
+//					files_different = Utilities.createKeys(deltas[j], files_different);
+//					ibf2 = new InvertibleBloomFilter(num_hash_functions, num_cells, files_different);
+//					
+//					ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
+//	
+//					difference = ibf_sub.getPureKeys();
+//					realDiff = files_different.size() - files_base.size();
+//					calcDiff = difference.size();
+//					success = 1 - Math.abs(realDiff-calcDiff)/(float)realDiff;
+//					//System.out.println("Decoded a set of "+keys_sizes[i]+" with a difference of "+realDiff+". Estimate "+calcDiff + ". % Success "+success);
+//					//System.out.println(success);
+//					if(success == Double.NaN)
+//						success = 1;
+//					success_total += success;
+//				}
+//				System.out.println(success_total/trials);
+//			}
+//			
+//			System.out.println("---------------------------");
+//		}	
+//		
+//	}
 	
 	//num keys shouldn't matter, as shown by the tuning IBF results, what matter is the difference between sets
-	public static void tuningHashCount(int num_keys, int num_cells){
-		int trials = 1000;
-		int[] deltas = {0,5,10,15,20,25,30,35,40,45,50};
-		int[] hashCount = {2,3,4,5,6};
-		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
-		Set<String> files_base, files_different,decoded_files;
-		double[][] results = new double[deltas.length][hashCount.length];
-		
-		for (int i=0; i < deltas.length; ++i)
-			for (int j=0; j < hashCount.length; ++j)
-				results[i][j] = 0;
-		
-		for (int i=0; i < deltas.length; i++){	
-			System.out.println("Computing Decoding Probability for Delta of " + deltas[i] + " for varying hash counts using " + num_keys + " keys.");
-			for (int t=0; t < trials; ++t){
-				
-				files_base = Utilities.createKeys(num_keys-deltas[i]);
-				files_different = new HashSet<String>(files_base);
-				files_different = Utilities.createKeys(deltas[i], files_different);
-				
-				for (int j=0; j < hashCount.length; ++j){
-					ibf1 = new InvertibleBloomFilter(hashCount[j], num_cells, files_base);
-					ibf2 = new InvertibleBloomFilter(hashCount[j], num_cells, files_different);
-					
-					ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
-					decoded_files = ibf_sub.getPureKeys();
-					
-					if (deltas[i] == 0)
-						results[i][j] = 1; //TODO set to 1 because we can't divide by 0 when deltas[0];
-					else
-						results[i][j] += (double) decoded_files.size()/(double) deltas[i]; 
-				}
-			}
-		}
-		
-		System.out.println("-----Results----");
-		for (int i=0; i < deltas.length; ++i){
-			System.out.println(deltas[i]+" Set Difference");
-			for (int j=0; j < hashCount.length; ++j){
-				results[i][j] /= (double) trials;
-				System.out.print(results[i][j] + ", ");
-			}
-			System.out.println("");
-		}
-	}
+//	public static void tuningHashCount(int num_keys, int num_cells){
+//		int trials = 1000;
+//		int[] deltas = {0,5,10,15,20,25,30,35,40,45,50};
+//		int[] hashCount = {2,3,4,5,6};
+//		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
+//		Set<String> files_base, files_different,decoded_files;
+//		double[][] results = new double[deltas.length][hashCount.length];
+//		
+//		for (int i=0; i < deltas.length; ++i)
+//			for (int j=0; j < hashCount.length; ++j)
+//				results[i][j] = 0;
+//		
+//		for (int i=0; i < deltas.length; i++){	
+//			System.out.println("Computing Decoding Probability for Delta of " + deltas[i] + " for varying hash counts using " + num_keys + " keys.");
+//			for (int t=0; t < trials; ++t){
+//				
+//				files_base = Utilities.createKeys(num_keys-deltas[i]);
+//				files_different = new HashSet<String>(files_base);
+//				files_different = Utilities.createKeys(deltas[i], files_different);
+//				
+//				for (int j=0; j < hashCount.length; ++j){
+//					ibf1 = new InvertibleBloomFilter(hashCount[j], num_cells, files_base);
+//					ibf2 = new InvertibleBloomFilter(hashCount[j], num_cells, files_different);
+//					
+//					ibf_sub = ibf1.subtract(ibf1, ibf2);
+//					decoded_files = ibf_sub.getPureKeys();
+//					
+//					if (deltas[i] == 0)
+//						results[i][j] = 1; //TODO set to 1 because we can't divide by 0 when deltas[0];
+//					else
+//						results[i][j] += (double) decoded_files.size()/(double) deltas[i]; 
+//				}
+//			}
+//		}
+//		
+//		System.out.println("-----Results----");
+//		for (int i=0; i < deltas.length; ++i){
+//			System.out.println(deltas[i]+" Set Difference");
+//			for (int j=0; j < hashCount.length; ++j){
+//				results[i][j] /= (double) trials;
+//				System.out.print(results[i][j] + ", ");
+//			}
+//			System.out.println("");
+//		}
+//	}
 	
 	//num keys shouldn't matter, as shown by the tuning IBF results, what matter is the difference between sets
 	public static void correctionOverhead(int num_keys, int num_strata, int num_hash_functions){
@@ -151,13 +151,9 @@ public class Main {
 		
 		
 	}
-
-
 	
     public static void main(String[] args) {
-
-    	
-    	tuningIBF(4,50);   	
+    	//tuningIBF(4,50);   	
     	//tuningHashCount(100, 50);
 		//correctionOverhead(100, 32, 4); //TODO enable throw exception otherwise results are completely off
     	
