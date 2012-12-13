@@ -1,12 +1,14 @@
 package bloom.utils;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 public class Utilities {
 	//Constants
 	public static final int KEY_LENGTH = 4;
+	public static final String characters = "abcdefghijklmnopqrstuvwxyz0123456789";
 	
 	public static String createKey(){
 		return createKey(KEY_LENGTH);
@@ -36,5 +38,26 @@ public class Utilities {
 		}	
 		return new_keys;
 	}
+	
+	public static String generateKey(){
+		char[] text = new char[KEY_LENGTH];
+		Random random = new Random();
+		
+	    for (int i = 0; i < KEY_LENGTH; i++){
+	        text[i] = characters.charAt(random.nextInt(characters.length()));
+	    }
+	    return new String(text);
+	}
 
+	public static Set<String> generateKeys(int number){
+		Set<String> keys = new HashSet<String>();
+		String key = "";
+		while(keys.size() < number){
+			key = generateKey();
+			if(!keys.contains(key)){
+				keys.add(key);
+			}
+		}
+		return keys;
+	}
 }
