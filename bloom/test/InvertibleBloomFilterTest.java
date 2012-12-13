@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.junit.Test;
 
 import bloom.filters.InvertibleBloomFilter;
+import bloom.utils.Utilities;
 
 
 public class InvertibleBloomFilterTest {
@@ -18,7 +19,7 @@ public class InvertibleBloomFilterTest {
 	public static final int NUMBER_OF_KEYS = 100;
 	public static final int SIZE = (int) (1.5*NUMBER_OF_KEYS);
 	public static final int HASH_COUNT = 3;
-	public static final String KEY = "teststring";
+	public static final String KEY = "test";
 	
 	
 	@Test
@@ -80,7 +81,7 @@ public class InvertibleBloomFilterTest {
 		InvertibleBloomFilter ibf;
 		
 		for(int t=0; t < TRIALS; ++t){
-			 keys = createKeys(NUMBER_OF_KEYS);
+			 keys = Utilities.createKeys(NUMBER_OF_KEYS);
 			 ibf = new InvertibleBloomFilter(HASH_COUNT, SIZE, keys);
 			 
 			 diff = ibf.getPureKeys();
@@ -112,19 +113,23 @@ public class InvertibleBloomFilterTest {
 	}
 	
 	@Test
-	public void testSubtractWithMultipleItems() {
-		int counter = 0;
-		Set<String> keys, diff;
+	public void testSubtractWithMultipleItems() throws Exception {
+		int additional = 10;
+		Set<String> keys;
 		InvertibleBloomFilter ibf1, ibf2, ibf_sub;
 		
-		keys = createKeys(NUMBER_OF_KEYS);
+		keys = Utilities.createKeys(NUMBER_OF_KEYS);
 		ibf1 = new InvertibleBloomFilter(HASH_COUNT, SIZE, keys);
 		ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE, keys);
 		
 		ibf_sub = ibf1.subtract(ibf2);
 		assertEquals(0, ibf_sub.getPureKeys().size());
 		
-		//TODO test with differing sets		
+		keys = Utilities.createKeys(additional, keys);
+		ibf2 = new InvertibleBloomFilter(HASH_COUNT, SIZE, keys);
+
+		ibf_sub = ibf1.subtract(ibf2);
+		assertEquals(additional, ibf_sub.getPureKeys().size());
 	}
 	
 	@Test

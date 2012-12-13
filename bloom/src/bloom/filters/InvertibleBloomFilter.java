@@ -103,6 +103,7 @@ public class InvertibleBloomFilter {
 		Integer index;
 		String key;
 		
+		int counter = 0;//REMOVE
 		pureCells = getPureCells();
 		while (!pureCells.isEmpty()){
 			index = pureCells.remove(pureCells.size() - 1);
@@ -110,6 +111,11 @@ public class InvertibleBloomFilter {
 			remove(key);
 			difference.add(key);
 			pureCells = getPureCells();
+			
+			//REMOVE
+			counter++; System.out.println(pureCells.toString());
+			if (counter > 100)
+				System.exit(0);
 		}		
 		return difference;
 	}
