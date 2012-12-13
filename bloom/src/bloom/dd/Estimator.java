@@ -6,10 +6,10 @@ public interface Estimator {
 	
 	public int getSize();
 	
-	public void addKey();
+	public void insert(String key);
 	
-	public void addKeys(Set<String> keys);
+	public void insert(Set<String> keys);
 	
-	public int estimateDifference(Estimator estimator);
+	public int estimateDifference(Estimator estimator) throws Exception;
 
 }

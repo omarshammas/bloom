@@ -20,7 +20,7 @@ public class StrataEstimatorTest {
 	@Test
 	public void testConstructor() {
 		Set<String> files = createFileNames(NUMBER_OF_FILES);
-		StrataEstimator se = new StrataEstimator(SIZE, HASH_COUNT, STRATA, files);
+		StrataEstimator se = new StrataEstimator(STRATA, files, SIZE, HASH_COUNT);
 		
 		assertEquals(HASH_COUNT, se.getHashCount());
 		assertEquals(STRATA, se.getStrata());
@@ -30,8 +30,8 @@ public class StrataEstimatorTest {
 	@Test
 	public void testEstimateDifferenceWithEqualSets() {
 		Set<String> files = createFileNames(NUMBER_OF_FILES);
-		StrataEstimator se1 = new StrataEstimator(SIZE, HASH_COUNT, STRATA, files);
-		StrataEstimator se2 = new StrataEstimator(SIZE, HASH_COUNT, STRATA, files);
+		StrataEstimator se1 = new StrataEstimator(STRATA, files, SIZE, HASH_COUNT);
+		StrataEstimator se2 = new StrataEstimator(STRATA, files, SIZE, HASH_COUNT);
 				
 		int difference = 0;
 		try {
@@ -55,11 +55,11 @@ public class StrataEstimatorTest {
 //		union.addAll(files2);
 //		assertEquals(2*NUMBER_OF_FILES-union.size(), difference);
 		
-		StrataEstimator se1 = new StrataEstimator(SIZE, HASH_COUNT, STRATA, files);
+		StrataEstimator se1 = new StrataEstimator(STRATA, files, SIZE, HASH_COUNT);
 		for (String file : files1)
 			se1.insert(file);
 		
-		StrataEstimator se2 = new StrataEstimator(SIZE, HASH_COUNT, STRATA, files);
+		StrataEstimator se2 = new StrataEstimator(STRATA, files, SIZE, HASH_COUNT);
 		for (String file : files2)
 			se2.insert(file);
 		

@@ -1,70 +1,53 @@
 package bloom.dd;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import bloom.filters.InvertibleBloomFilter;
-import bloom.hash.HashFunction;
 
-public class StrataEstimator {
+public class StrataEstimator implements Estimator{
 
-	public static int HASH_COUNT = 3;
-	public static int STRATA = 32;
-	public static int CUTOFF = 10;
-	public static int SIZE = 80;
+	public static final int HASH_COUNT = 3;
+	public static final int STRATA = 32;
+	public static final int CUTOFF = 10;
+	public static final int IBFSIZE = 80;
 	
-	private InvertibleBloomFilter[] estimator;
-	private int size;
+	private InvertibleBloomFilter[] bloomfilters;
+	private int ibfSize;
 	private int hashCount;
 	private int strata;
-	private int[] distro;
+	
+	public StrataEstimator(){
+		this(STRATA, new HashSet<String>(), IBFSIZE, HASH_COUNT);
+	}
 	
 	public StrataEstimator(int strata){
-		this(SIZE, HASH_COUNT, strata, new HashSet<String>());
+		this(strata, new HashSet<String>(), IBFSIZE, HASH_COUNT);
 	}
 	
 	public StrataEstimator(int strata, Set<String> keys){
-		this(SIZE, HASH_COUNT, strata, keys);
+		this(strata, keys, IBFSIZE, HASH_COUNT);
 	}
 	
-	public StrataEstimator(int size, Set<String> files, int strata){
-		this(size, HASH_COUNT, strata, files);
+	public StrataEstimator(int strata, Set<String> keys, int ibfSize){
+		this(strata, keys, ibfSize, HASH_COUNT);
 	}
 		
-	public StrataEstimator(int size, int hashCount, int strata, Collection<String> files){
-		this.size = size;
+	public StrataEstimator(int strata, Set<String> keys, int ibfSize, int hashCount){
+		this.ibfSize = ibfSize;
 		this.hashCount = hashCount;
 		this.strata = strata;
 		
-		//TODO remove, used only for debugging
-		this.distro = new int[STRATA];
-		for (int i=0; i<STRATA; ++i)
-			this.distro[i] = 0;
-			
-		estimator = new InvertibleBloomFilter[strata];
+		bloomfilters = new InvertibleBloomFilter[strata];
 		for(int i=0; i < strata; ++i){
-			estimator[i] = new InvertibleBloomFilter(hashCount, size);
+			bloomfilters[i] = new InvertibleBloomFilter(hashCount, ibfSize);
 		}
 				
-		for (String file : files){
-			insert(file);
-		}
+		insert(keys);
 	}
-	
-	private int getNumberOfTrailingZeros(String file){
-		int hashCode =  (int) (HashFunction.fnv1Hash(file)%Math.pow(2,STRATA));
-		int counter = STRATA-1;
-		while (hashCode > 0){
-			hashCode = hashCode/2;
-			counter--;
-		}
-		return counter;
-	}
-	
+		
 	public int getSize(){
-		return size;
+		return ibfSize;
 	}
 	
 	public int getStrata(){
@@ -77,66 +60,70 @@ public class StrataEstimator {
 	
 	public InvertibleBloomFilter getIBF(int index){
 		assert index <= strata; //TODO throw exception
-		return estimator[index];
+		return bloomfilters[index];
 	}
 
 	public void insert(String key){
 		int trailingZeros = getNumberOfTrailingZeros(key);
-		estimator[trailingZeros].insert(key);
-		this.distro[trailingZeros] += 1; //TODO remove
+		bloomfilters[trailingZeros].insert(key);
+	}
+	
+	public void insert(Set<String> keys){
+		for(String key : keys){
+			insert(key);
+		}
 	}
 	
 	public void remove(String key){
 		int trailingZeros = getNumberOfTrailingZeros(key);
-		estimator[trailingZeros].remove(key);
-		this.distro[trailingZeros] -= 1; //TODO remove
+		bloomfilters[trailingZeros].remove(key);
 	}
-	
-	//TODO remove distro
-	public void printDistro(){
-		for (int i=0; i<STRATA; ++i)
-			System.out.print(this.distro[i]+", ");
-		System.out.println("");
+
+	private int getNumberOfTrailingZeros(String key){
+		//int hashCode =  (int) (HashFunction.fnv1Hash(key)%Math.pow(2,STRATA));
+		int hashCode =  key.hashCode();
+		int counter = STRATA-1;
+		while (hashCode > 0){
+			hashCode = hashCode/2;
+			counter--;
+		}
+		return counter;
 	}
-	
-	
 	/**
-	 * Given 2 StrataEstimators it will compute the set difference will estimated.
-	 * @param se1
-	 * @param se2
-	 * @return estimated difference size
-	 * @throws Exception 
+	 * 
+	 * @param estimator 
+	 * @return
+	 * @throws Exception
 	 */
-	public static int estimateDifference(StrataEstimator se1, StrataEstimator se2) throws Exception{
-		assert isEquivalent(se1, se2);
-		
-		ArrayList<String> files;
+	public int estimateDifference(Estimator estimator) throws Exception{
+		if(!(estimator instanceof StrataEstimator))
+			throw new Exception("StrataEstimator type mismatch!");
+		StrataEstimator se = (StrataEstimator) estimator;
+		if(!isEquivalent(se)){
+			throw new Exception("StrataEstimators are not equivalent!");
+		}
+
+		Set<String> keys;
 		InvertibleBloomFilter ibf;
 		int difference = 0;
-		boolean decoded = false;
-		for (int i=STRATA-1; i >= 0; --i){
-			ibf = InvertibleBloomFilter.subtract(se1.getIBF(i), se2.getIBF(i));
-			try {
-				files = ibf.getDifference();
-			} catch (Exception e) {
-				System.out.println(i+" th bloom filter was not decoded.");
-				System.out.println("Difference: "+difference+", multiply by "+Math.pow(2, i+1));
+		
+		for(int i = STRATA-1; i >= 0; i--){
+			//TODO change subtract to an instance method
+			ibf = InvertibleBloomFilter.subtract(this.getIBF(i), se.getIBF(i));
+			
+			keys = ibf.getPureKeys();
+			
+			if(!ibf.isEmpty()){
 				difference *= Math.pow(2, i+1);
 				break;
-			}
-			
-			decoded = true;
-			difference += files.size();
+			}			
+			difference += keys.size();
 		}
-		
-		if (!decoded)
-			throw new Exception("Unable to deocde");
-			
-		return difference;
+		return difference; 
 	}
 	
 	
-	public static boolean isEquivalent(StrataEstimator se1, StrataEstimator se2){
-		return se1.getSize() == se2.getSize() && se1.getStrata() == se2.getStrata();
+	public boolean isEquivalent(StrataEstimator se){
+		return this.getSize() == se.getSize() && this.getStrata() == se.getStrata() && this.getHashCount() == se.getHashCount();
 	}
 }

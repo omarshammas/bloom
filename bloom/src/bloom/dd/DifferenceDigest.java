@@ -7,26 +7,20 @@ import java.util.Set;
 import bloom.filters.InvertibleBloomFilter;
 
 public class DifferenceDigest {
+	//Constants
+	public static final int HASH_COUNT = 4;
+	
 	// Members
-	private HybridEstimator estimator;
-	private InvertibleBloomFilter filter;
+	private Estimator estimator;
 	private Set<String> keys;
 	
 	// Setters and Getters
-	public HybridEstimator getEstimator() {
+	public Estimator getEstimator() {
 		return estimator;
 	}
 
-	public void setEstimator(HybridEstimator estimator) {
+	public void setEstimator(Estimator estimator) {
 		this.estimator = estimator;
-	}
-
-	public InvertibleBloomFilter getFilter() {
-		return filter;
-	}
-
-	public void setFilter(InvertibleBloomFilter filter) {
-		this.filter = filter;
 	}
 	
 	/**
@@ -34,7 +28,7 @@ public class DifferenceDigest {
 	 */
 	public DifferenceDigest(){
 		this.keys = new HashSet<String>();
-		estimator = new HybridEstimator();
+		estimator = new Estimator();
 	}
 	
 	/**
@@ -44,7 +38,7 @@ public class DifferenceDigest {
 	 */
 	public DifferenceDigest(Set<String> keys){
 		this.keys = new HashSet<String>(keys);
-		estimator = new HybridEstimator(keys);
+		estimator = new Estimator(keys);
 	}
 	
 	/***
@@ -54,7 +48,7 @@ public class DifferenceDigest {
 	 */
 	public void addKey(String key){
 		this.keys.add(key);
-		//TODO: Update other members
+		this.estimator.insert(key);
 	}
 	
 	/***
@@ -64,45 +58,35 @@ public class DifferenceDigest {
 	 */
 	public void addKeys(Set<String> keys){
 		this.keys.addAll(keys);
-		//TODO: Update other members
+		this.estimator.insert(keys);
 	}
 	
 	/**
-	 * Creates an Invertible Bloom Filter the size of the estimated set
-	 * difference calculate from the input HybridEstimator
+	 * Creates an Invertible Bloom Filter of the size of the estimated set
+	 * difference calculated from the input Estimator
 	 * 
-	 * @param estimator HybridEstimator used to calculate the set difference size
+	 * @param estimator Estimator is used to calculate the set difference size
 	 * @return			Invertible Bloom Filter representing current set of keys
 	 */
-	public InvertibleBloomFilter getDifferenceIBF(HybridEstimator estimator){
+	public InvertibleBloomFilter getDifferenceIBF(Estimator estimator){
 		int d = this.estimator.estimateDifference(estimator);	
-		InvertibleBloomFilter ibf = new InvertibleBloomFilter(4,d);
-		for(String key: keys){
-			ibf.insert(key);
-		}
+		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT,d,keys);
 		return ibf;
 	}
 	
 	/**
-	 * Calculates SetB - SetA by subracting ibfB from bloom filter
+	 * Calculates SetB - SetA by subtracting ibfB from bloom filter
 	 * representing the current set of keys
 	 * 
 	 * @param ibfB 	Invertible Bloom Filter used to get the set difference
-	 * @return 		Returns an ArrayList of string values representing SetB - SetA
+	 * @return 		Returns a Set of string values representing SetB - SetA
 	 */
-	public ArrayList<String> getDifference(InvertibleBloomFilter ibfB){
-		//TODO: Determine if we want to make filter on demand or store it
-		InvertibleBloomFilter ibfA = new InvertibleBloomFilter(4,ibfB.getSize());
-		for(String key: keys)
-			ibfA.insert(key);
+	public Set<String> getSetDifference(InvertibleBloomFilter ibfB){
+		InvertibleBloomFilter ibfA = new InvertibleBloomFilter(HASH_COUNT,ibfB.getSize(),keys);
+		
 		InvertibleBloomFilter diff = InvertibleBloomFilter.subtract(ibfB, ibfA);
-		try {
-			return diff.getDifference();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		
+		return diff.getPureKeys();
 	}
 	
 }

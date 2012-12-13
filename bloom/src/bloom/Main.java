@@ -51,7 +51,7 @@ public class Main {
 					
 					ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
 	
-					difference = ibf_sub.getDifference();
+					difference = ibf_sub.getPureKeys();
 					realDiff = files_different.size() - files_base.size();
 					calcDiff = difference.size();
 					success = 1 - Math.abs(realDiff-calcDiff)/(float)realDiff;
@@ -96,7 +96,7 @@ public class Main {
 					ibf2 = new InvertibleBloomFilter(hashCount[j], num_cells, files_different);
 					
 					ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
-					decoded_files = ibf_sub.getDifference();
+					decoded_files = ibf_sub.getPureKeys();
 					
 					if (deltas[i] == 0)
 						results[i][j] = 1; //TODO set to 1 because we can't divide by 0 when deltas[0];
@@ -141,8 +141,8 @@ public class Main {
 				files_different = createFileNames(deltas[i], files_different);
 				
 				for (int j=0; j < cell_sizes.length; ++j){
-					se1 = new StrataEstimator(cell_sizes[j], num_hash_functions, num_strata, files_base);
-					se2 = new StrataEstimator(cell_sizes[j], num_hash_functions, num_strata, files_different);
+					se1 = new StrataEstimator(num_strata, files_base, cell_sizes[j], num_hash_functions);
+					se2 = new StrataEstimator(num_strata, files_different, cell_sizes[j], num_hash_functions);
 					
 					difference = 0;
 					try {

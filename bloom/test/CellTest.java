@@ -71,7 +71,7 @@ public class CellTest {
 	public void testExtractPure(){
 		Cell c = new Cell();
 		c.add(KEY);
-		assertEquals(KEY,  c.extractPure());
+		assertEquals(KEY,  c.extractKey());
 	}
 	
 	@Test

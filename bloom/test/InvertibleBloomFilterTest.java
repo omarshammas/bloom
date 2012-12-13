@@ -27,7 +27,7 @@ public class InvertibleBloomFilterTest {
 		assertEquals(SIZE, ibf.getSize());
 		assertEquals(HASH_COUNT, ibf.getHashCount());
 		try {
-			assertEquals(0, ibf.getDifference().size());
+			assertEquals(0, ibf.getPureKeys().size());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Failed to get the difference");
@@ -62,7 +62,7 @@ public class InvertibleBloomFilterTest {
 		ibf.insert(KEY);
 		
 		try {
-			ArrayList<String> difference = ibf.getDifference();
+			ArrayList<String> difference = ibf.getPureKeys();
 			assertEquals(1, difference.size());
 			assertEquals(KEY, difference.get(0));
 		} catch (Exception e) {
@@ -84,7 +84,7 @@ public class InvertibleBloomFilterTest {
 			}
 								
 			try {
-				ArrayList<String> difference = ibf.getDifference();
+				ArrayList<String> difference = ibf.getPureKeys();
 				assertEquals(NUMBER_OF_FILES, difference.size());
 				assertEquals(true, ibf.isEmpty());
 				
@@ -115,7 +115,7 @@ public class InvertibleBloomFilterTest {
 		ibf1.insert(KEY);
 		ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
 		try {
-			assertEquals(1, ibf_sub.getDifference().size());
+			assertEquals(1, ibf_sub.getPureKeys().size());
 		} catch (Exception e) {
 			fail("Failed to get the difference");
 		}
@@ -123,7 +123,7 @@ public class InvertibleBloomFilterTest {
 		ibf2.insert(KEY);
 		ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
 		try {
-			assertEquals(0, ibf_sub.getDifference().size());
+			assertEquals(0, ibf_sub.getPureKeys().size());
 		} catch (Exception e) {
 			fail("Failed to get the difference");
 		}
@@ -145,7 +145,7 @@ public class InvertibleBloomFilterTest {
 		
 		InvertibleBloomFilter ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf2);
 		try {
-			assertEquals(0, ibf_sub.getDifference().size());
+			assertEquals(0, ibf_sub.getPureKeys().size());
 		} catch (Exception e) {
 			fail("Failed to get the difference");
 		}		
@@ -162,7 +162,7 @@ public class InvertibleBloomFilterTest {
 		
 		ibf_sub = InvertibleBloomFilter.subtract(ibf1, ibf3);
 		try {
-			ArrayList<String> difference = ibf_sub.getDifference();
+			ArrayList<String> difference = ibf_sub.getPureKeys();
 			assertEquals(NUMBER_OF_FILES-num, difference.size());
 		} catch (Exception e) {
 			fail("Failed to get the difference");

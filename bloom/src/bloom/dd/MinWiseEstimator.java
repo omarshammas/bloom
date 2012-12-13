@@ -1,12 +1,11 @@
 package bloom.dd;
 
-import java.util.Iterator;
 import java.util.Set;
 
 import bloom.hash.HashFunction;
 
 
-public class MinWiseEstimator {
+public class MinWiseEstimator implements Estimator{
 	
 	//The number of hashes used in the Varghese paper
 	private static final int K = 3840;
@@ -14,22 +13,27 @@ public class MinWiseEstimator {
 	// Private Members
 	private int[] hashes;
 	private int size;
-	
-	// Getters
-	public int[] getHashes() {
-		return hashes;
-	}
-
-	public int getSize() {
-		return size;
-	}
-	
+		
 	/**
 	 * Default Constructor
 	 */
 	public MinWiseEstimator(){
 		hashes = new int[K];
 		size = 0;
+		for(int i = 0; i < hashes.length; i++){
+			hashes[i] = Integer.MAX_VALUE;
+		}
+	}
+	
+	/**
+	 * Constructor taking in a value for K
+	 */
+	public MinWiseEstimator(int k){
+		hashes = new int[k];
+		size = 0;
+		for(int i = 0; i < hashes.length; i++){
+			hashes[i] = Integer.MAX_VALUE;
+		}
 	}
 	
 	/**
@@ -38,13 +42,28 @@ public class MinWiseEstimator {
 	 * @param	key	A set of keys to be added
 	 */
 	public MinWiseEstimator(Set<String> keys){
-		size = keys.size();
-		hashes = new int[K];
-		for(int kk= 0; kk < hashes.length; kk++){
-			int minValue = Integer.MAX_VALUE;
-			minValue = getMinHashFromSet(keys, kk, minValue);
-			hashes[kk] = minValue;
-		}
+		this();
+		insert(keys);
+	}
+	
+	/**
+	 * Constructor that takes in a set of keys and a value for k
+	 * 
+	 * @param	key	A set of keys to be added
+	 * @param	number of hashes k
+	 */
+	public MinWiseEstimator(int k, Set<String> keys){
+		this(k);
+		insert(keys);
+	}
+
+	// Getters
+	public int[] getHashes() {
+		return hashes;
+	}
+
+	public int getSize() {
+		return size;
 	}
 	
 	/**
@@ -81,19 +100,32 @@ public class MinWiseEstimator {
 	 * input Min-wise estimator.
 	 * 
 	 * @param	estimator	a min-wise estimator object for a given set
-	 * @return				the estimated set difference 
+	 * @return	the estimated set difference 
 	 */
-	public int estimateDifference(MinWiseEstimator estimator){
-		int[] hashesB = estimator.getHashes();
+	public int estimateDifference(Estimator estimator) throws Exception{
+		if(!(estimator instanceof MinWiseEstimator))
+			throw new Exception("MinWiseEstimator type mismatch!");
+		
+		MinWiseEstimator minWise = (MinWiseEstimator) estimator;
+		
+		if(!isEquivalent(minWise)){
+			throw new Exception("MinwiseEstimators not Equivalent!");
+		}
+		
+		int[] hashesB = minWise.getHashes();
 		float m = 0;
 		for(int ii = 0; ii < hashesB.length; ii++){
 			if(hashesB[ii] == hashes[ii])
 				m++;
 		}
-		float r = m/K;
-		return (int) ((1-r)/(1+r) * (estimator.getSize()+this.size));
+		float r = m/hashes.length;
+		return (int) ((1-r)/(1+r) * (minWise.getSize()+this.size));
 	}
 	
+	private boolean isEquivalent(MinWiseEstimator minWise) {
+		return hashes.length == minWise.getHashes().length;
+	}
+
 	/**
 	 * Iterates through the set, finds the minimum hash of all the keys
 	 * and returns it
@@ -104,9 +136,8 @@ public class MinWiseEstimator {
 	 * @return				Returns the minimum of hashes of all the keys
 	 */
 	private int getMinHashFromSet(Set<String> keys, int k, int currentMin) {
-		Iterator<String> it = keys.iterator();
-		while(it.hasNext()){
-			int nextHash = HashFunction.minWiseHash(it.next().hashCode(), k);
+		for (String key : keys){
+			int nextHash = HashFunction.minWiseHash(key.hashCode(), k);
 			if(nextHash < currentMin)
 				currentMin = nextHash;
 		}
