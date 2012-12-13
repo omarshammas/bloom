@@ -44,7 +44,7 @@ public class Cell {
 	}
 	
 	//TODO pad the strings to the same size
-	private static String XOR(String s1, String s2) {
+	public static String XOR(String s1, String s2) {
 		StringBuilder sb = new StringBuilder();
 		assert s1.length() == s2.length(); //TODO replace with exception
 		
