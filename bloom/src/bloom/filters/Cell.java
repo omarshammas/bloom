@@ -25,7 +25,11 @@ public class Cell {
 	public void remove(String key){
 		idSum = XOR(idSum,key);
 		hashSum = hashSum ^ key.hashCode();
-		count--;
+		
+		if (count < 0)
+			count++;
+		else
+			count--;
 	}
 	
 	public boolean isEmpty(){
