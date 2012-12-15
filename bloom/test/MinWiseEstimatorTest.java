@@ -5,9 +5,9 @@ import java.util.Set;
 import java.util.UUID;
 import org.junit.Test;
 
-import bloom.dd.HybridEstimator;
 import bloom.dd.MinWiseEstimator;
 import bloom.dd.StrataEstimator;
+import bloom.hash.HashPseudoRandom;
 import bloom.utils.Utilities;
 
 
@@ -33,7 +33,7 @@ public class MinWiseEstimatorTest {
 	public void testEstimateDifference(){
 		MinWiseEstimator mwe3 = new MinWiseEstimator(3);
 		MinWiseEstimator mwe4 = new MinWiseEstimator(4);
-		StrataEstimator se = new StrataEstimator();
+		StrataEstimator se = new StrataEstimator(new HashPseudoRandom());
 		try {
 			mwe3.estimateDifference(se);
 			assertTrue(false);

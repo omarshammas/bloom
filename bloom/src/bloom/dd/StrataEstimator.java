@@ -66,7 +66,9 @@ public class StrataEstimator implements Estimator{
 
 	public void insert(String key){
 		int trailingZeros = getNumberOfTrailingZeros(key);
-		bloomfilters[trailingZeros].insert(key);
+		if (trailingZeros < this.strata){
+			bloomfilters[trailingZeros].insert(key);
+		}
 	}
 	
 	public void insert(Set<String> keys){
@@ -108,7 +110,7 @@ public class StrataEstimator implements Estimator{
 		InvertibleBloomFilter ibf;
 		int difference = 0;
 		
-		for(int i = STRATA-1; i >= 0; i--){
+		for(int i = this.strata-1; i >= 0; i--){
 			ibf = this.getIBF(i).subtract(se.getIBF(i));
 			keys = ibf.getPureKeys();
 			

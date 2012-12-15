@@ -53,9 +53,6 @@ public class StrataEstimatorTest {
 		StrataEstimator se1 = new StrataEstimator(STRATA, keys1, IBFSIZE, HASH_COUNT, hash);		
 		StrataEstimator se2 = new StrataEstimator(STRATA, keys2, IBFSIZE, HASH_COUNT, hash);
 		
-		se1.printDistro();
-		se2.printDistro();
-		
 		int difference = se1.estimateDifference(se2);
 		System.out.println("Actual: "+keysdiff.size()+", Estimated: "+difference);
 		assertEquals(keysdiff.size(), difference);

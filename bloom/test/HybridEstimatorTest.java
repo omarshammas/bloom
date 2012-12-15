@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.UUID;
 import org.junit.Test;
 import bloom.dd.HybridEstimator;
+import bloom.hash.Hash;
+import bloom.hash.HashPseudoRandom;
 
 
 public class HybridEstimatorTest {
@@ -13,14 +15,16 @@ public class HybridEstimatorTest {
 	@Test
 	public void testConstructors(){
 		//TODO: Find a way to test if constructor works
-		HybridEstimator estimator = new HybridEstimator();
-		estimator = new HybridEstimator(randomSet(100));
+		Hash hash = new HashPseudoRandom();
+		HybridEstimator estimator = new HybridEstimator(hash);
+		estimator = new HybridEstimator(randomSet(100), hash);
 	}
 	
 	@Test
 	public void testInsert(){
 		//TODO: Find a way to test if inserts are succeeding
-		HybridEstimator estimator = new HybridEstimator();
+		Hash hash = new HashPseudoRandom();
+		HybridEstimator estimator = new HybridEstimator(hash);
 		estimator.insert(randomString());
 		estimator.insert(randomSet(100));
 	}

@@ -210,7 +210,6 @@ public class Main {
     	//tuningHashCount(100, 50);
 		//correctionOverhead(100, 32, 4);
     	
-    	//correctionOverheadFixedStrata(100000, 16, 4, 80);
-    	correctionOverheadFixedStrata(1000, 32, 4, 80);
+    	correctionOverheadFixedStrata(100000, 16, 4, 80);
     }
 }
