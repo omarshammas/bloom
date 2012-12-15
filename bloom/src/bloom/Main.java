@@ -1,6 +1,5 @@
 package bloom;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import bloom.dd.StrataEstimator;
@@ -163,12 +162,9 @@ public class Main {
 		
 	
     public static void main(String[] args) {
-    	//tuningIBF(4,50);   	
+    	tuningIBF(4,50);   	
     	//tuningHashCount(100, 50);
-		correctionOverhead(100, 32, 4);
+		//correctionOverhead(100, 32, 4);
     	
-		
-		
-		
     }
 }

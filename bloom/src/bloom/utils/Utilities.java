@@ -17,7 +17,17 @@ public class Utilities {
 	}
 	
 	public static String createKey(int keyLength){
-		return UUID.randomUUID().toString().substring(0,keyLength);
+		Random rand = new Random();
+        byte[] randb = new byte[keyLength];
+        String key;
+        while(true){
+                rand.nextBytes(randb);
+                key = new String(randb);
+                if(key.length() == keyLength)
+                        break;
+        }
+        return key;
+		//return UUID.randomUUID().toString().substring(0,keyLength);
 	}
 	
 	public static Set<String> createKeys(int number){

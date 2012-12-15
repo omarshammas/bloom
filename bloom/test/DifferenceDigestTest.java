@@ -42,5 +42,4 @@ public class DifferenceDigestTest {
 		assert(keysdiff.size() == estimateddiff.size());
 	
 	}
-
 }

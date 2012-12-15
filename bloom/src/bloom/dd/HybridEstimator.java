@@ -2,6 +2,8 @@ package bloom.dd;
 
 import java.util.Set;
 
+import bloom.hash.Hash;
+
 public class HybridEstimator implements Estimator{
 	//Constants
 	public static int STRATA = 10;
@@ -17,9 +19,9 @@ public class HybridEstimator implements Estimator{
 	/**
 	 *  Default Constructor
 	 */
-	public HybridEstimator(){
+	public HybridEstimator(Hash hash){
 		size = 0;
-		strataEst = new StrataEstimator(STRATA);
+		strataEst = new StrataEstimator(STRATA, hash);
 		minWiseEst = new MinWiseEstimator();
 	}
 	
@@ -27,9 +29,9 @@ public class HybridEstimator implements Estimator{
 	 *  Constructor for specifying the strata
 	 * @param strata A value for configuring the number of strata for the StartaEstimator
 	 */
-	public HybridEstimator(int strata){
+	public HybridEstimator(int strata, Hash hash){
 		size = 0;
-		strataEst = new StrataEstimator(strata);
+		strataEst = new StrataEstimator(strata, hash);
 		minWiseEst = new MinWiseEstimator();
 	}
 	
@@ -37,9 +39,9 @@ public class HybridEstimator implements Estimator{
 	 * Constructor that takes in a set of keys
 	 * @param keys	A set of keys to be added
 	 */
-	public HybridEstimator(Set<String> keys){
+	public HybridEstimator(Set<String> keys, Hash hash){
 		size = keys.size();
-		strataEst = new StrataEstimator(STRATA, keys);
+		strataEst = new StrataEstimator(STRATA, keys, hash);
 		minWiseEst = new MinWiseEstimator(keys);
 	}
 	
@@ -48,9 +50,9 @@ public class HybridEstimator implements Estimator{
 	 * @param keys	A set of keys to be added
 	 * @param strata A value for configuring the number of strata for the StartaEstimator
 	 */
-	public HybridEstimator(int strata, Set<String> keys) {
+	public HybridEstimator(int strata, Set<String> keys, Hash hash) {
 		size = keys.size();
-		strataEst = new StrataEstimator(strata, keys);
+		strataEst = new StrataEstimator(strata, keys, hash);
 		minWiseEst = new MinWiseEstimator(keys);
 	}
 	
@@ -80,7 +82,7 @@ public class HybridEstimator implements Estimator{
 	public int estimateDifference(Estimator estimator) throws Exception{
 		if(!(estimator instanceof HybridEstimator))
 			throw new Exception("Estimator type mismatch!"); 
-		//TODO add code to return stuff
+		//TODO estimate difference
 		return 0;
 	}	
 }
