@@ -1,6 +1,5 @@
 package bloom;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import bloom.dd.StrataEstimator;
@@ -162,9 +161,9 @@ public class Main {
 	}
 	
 	public static void correctionOverheadFixedStrata(int num_keys, int num_strata, int num_hash_functions, int ibfsize){
-		int trials = 100, difference;
-		int[] deltas = {10, 100, 1000, 10000};
-		int[] results = new int[deltas.length];
+		int trials = 50, difference;
+		int[] deltas = {10, 100, 1000, 10000, 100000};
+		double[] results = new double[deltas.length];
 		Hash hash;
 		Set<String> keys1, keys2;
 		StrataEstimator se1, se2;
@@ -176,6 +175,7 @@ public class Main {
 		
 		for (int i=0; i < deltas.length; ++i){
 			for (int t=0; t < trials; ++t){
+				System.out.print(t+", ");
 				
 				keys1 = Utilities.createKeys(num_keys);
 				keys2 = Utilities.createKeys(deltas[i], keys1);
@@ -191,9 +191,9 @@ public class Main {
 					System.out.println(deltas[i]+" - Strata estimator was unable to deocde");
 				}
 				
-				results[i] += (float) deltas[i] / (float) difference;	
-				
+				results[i] += (float) deltas[i] / (float) difference;					
 			}
+			System.out.println("\n");
 		}
 		
 		System.out.println("-----Results----");

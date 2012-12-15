@@ -59,14 +59,18 @@ public class StrataEstimator implements Estimator{
 		return hashCount;
 	}
 	
+	public Hash getHash(){
+		return hash;
+	}
+	
 	public InvertibleBloomFilter getIBF(int index){
-		assert index <= strata; //TODO throw exception
+		assert index < this.strata; //TODO throw exception
 		return bloomfilters[index];
 	}
 
 	public void insert(String key){
 		int trailingZeros = getNumberOfTrailingZeros(key);
-		if (trailingZeros < this.strata){
+		if (trailingZeros < this.getStrata()){
 			bloomfilters[trailingZeros].insert(key);
 		}
 	}
@@ -79,17 +83,19 @@ public class StrataEstimator implements Estimator{
 	
 	public void remove(String key){
 		int trailingZeros = getNumberOfTrailingZeros(key);
-		bloomfilters[trailingZeros].remove(key);
+		if (trailingZeros <  this.getStrata()){
+			bloomfilters[trailingZeros].remove(key);
+		}
 	}
 
 	private int getNumberOfTrailingZeros(String key){
-		int hashCode = this.hash.getHashCode(key);
-		//int hashCode =  (int) (HashFunction.fnv1Hash(key)%Math.pow(2,STRATA));
+		int hashCode = this.getHash().getHashCode(key);
 		int counter = STRATA-1;
 		while (hashCode > 0){
 			hashCode = hashCode/2;
 			counter--;
 		}
+		
 		return counter;
 	}
 	/**
@@ -110,7 +116,7 @@ public class StrataEstimator implements Estimator{
 		InvertibleBloomFilter ibf;
 		int difference = 0;
 		
-		for(int i = this.strata-1; i >= 0; i--){
+		for(int i = this.getStrata()-1; i >= 0; i--){
 			ibf = this.getIBF(i).subtract(se.getIBF(i));
 			keys = ibf.getPureKeys();
 			
