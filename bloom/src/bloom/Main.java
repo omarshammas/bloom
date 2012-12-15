@@ -1,5 +1,6 @@
 package bloom;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import bloom.dd.StrataEstimator;
@@ -14,7 +15,7 @@ public class Main {
 	
 	public static void tuningIBF(int num_hash_functions, int num_cells){
 		int trials = 100;
-		int[] keys_sizes = {100,1000,10000,100000,1000000};
+		int[] keys_sizes = {100,1000,10000,100000};
 		int[] deltas = {0,5,10,15,20,25,30,35,40,45,50};
 		InvertibleBloomFilter ibf1, ibf2, ibf_sub=null;
 		Hash hash;
@@ -29,7 +30,7 @@ public class Main {
 					keys1 = Utilities.createKeys(keys_sizes[i]);
 					keys2 = Utilities.createKeys(deltas[j], keys1);
 
-					hash = new HashPseudoRandom();
+					hash = new HashFunction();
 					ibf1 = new InvertibleBloomFilter(num_hash_functions, num_cells, hash, keys1);
 					ibf2 = new InvertibleBloomFilter(num_hash_functions, num_cells, hash, keys2);
 					
@@ -159,12 +160,57 @@ public class Main {
 			System.out.println("");
 		}		
 	}
+	
+	public static void correctionOverheadFixedStrata(int num_keys, int num_strata, int num_hash_functions, int ibfsize){
+		int trials = 100, difference;
+		int[] deltas = {10, 100, 1000, 10000};
+		int[] results = new int[deltas.length];
+		Hash hash;
+		Set<String> keys1, keys2;
+		StrataEstimator se1, se2;
+		
+		for (int i=0; i < results.length; ++i){
+			results[i] = 0;
+		} 
+		
+		
+		for (int i=0; i < deltas.length; ++i){
+			for (int t=0; t < trials; ++t){
+				
+				keys1 = Utilities.createKeys(num_keys);
+				keys2 = Utilities.createKeys(deltas[i], keys1);
+				
+				hash = new HashPseudoRandom();
+				se1 = new StrataEstimator(num_strata, keys1, ibfsize, num_hash_functions, hash);
+				se2 = new StrataEstimator(num_strata, keys2, ibfsize, num_hash_functions, hash);
+				
+				difference = 0;
+				try {
+					difference = se1.estimateDifference(se2);
+				} catch (Exception e) {
+					System.out.println(deltas[i]+" - Strata estimator was unable to deocde");
+				}
+				
+				results[i] += (float) deltas[i] / (float) difference;	
+				
+			}
+		}
+		
+		System.out.println("-----Results----");
+		for (int i=0; i < results.length; ++i){
+			results[i] /= (double) trials;
+			System.out.println(results[i]);
+		} 
+		
+	}
 		
 	
     public static void main(String[] args) {
-    	tuningIBF(4,50);   	
+    	//tuningIBF(4,50);   	
     	//tuningHashCount(100, 50);
 		//correctionOverhead(100, 32, 4);
     	
+    	//correctionOverheadFixedStrata(100000, 16, 4, 80);
+    	correctionOverheadFixedStrata(1000, 32, 4, 80);
     }
 }
