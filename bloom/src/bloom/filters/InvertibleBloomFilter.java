@@ -50,6 +50,10 @@ public class InvertibleBloomFilter {
 		return hashCount;
 	}
 	
+	public Hash getHash(){
+		return hash;
+	}
+	
 	public Cell getCell(int i){
 		return filter[i];
 	}

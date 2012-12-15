@@ -98,8 +98,9 @@ public class HashFunctionTest {
 	private void kHashFunctions(int k) {
 		int[] buckets = createFreqArray(m);
 		// Fill in array with a running count of hash locations
+		HashFunction hash = new HashFunction();
 		for (int ii = 0; ii < M; ii++){
-			int[] hashes = HashFunction.hash(UUID.randomUUID().toString().substring(0, 15), k, m);
+			int[] hashes = hash.hash(UUID.randomUUID().toString().substring(0, 15), k, m);
 			for(int jj = 0; jj < hashes.length; jj++)
 				buckets[hashes[jj]] += 1;
 		}

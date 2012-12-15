@@ -1,5 +1,6 @@
 package bloom;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import bloom.dd.StrataEstimator;
@@ -41,6 +42,8 @@ public class Main {
 					}
 					
 					keysdiff = ibf_sub.getPureKeys();
+										
+					
 					if (deltas[j] == 0){
 						success =  1 - (double) keysdiff.size();
 					} else {
@@ -110,8 +113,8 @@ public class Main {
 	
 	//num keys shouldn't matter, as shown by the tuning IBF results, what matter is the difference between sets
 	public static void correctionOverhead(int num_keys, int num_strata, int num_hash_functions){
-		int trials = 20;
-		int[] deltas = {10, 100, 1000, 10000, 100000};
+		int trials = 200;
+		int[] deltas = {10, 100, 1000, 10000}; //100000};
 		int[] cell_sizes = {20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160};
 		StrataEstimator se1, se2;
 		Hash hash;
@@ -157,13 +160,15 @@ public class Main {
 			System.out.println("");
 		}		
 	}
-	
-	
+		
 	
     public static void main(String[] args) {
     	//tuningIBF(4,50);   	
     	//tuningHashCount(100, 50);
-		correctionOverhead(100, 32, 4); //TODO enable throw exception otherwise results are completely off
+		correctionOverhead(100, 32, 4);
     	
+		
+		
+		
     }
 }

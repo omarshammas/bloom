@@ -81,4 +81,17 @@ public class Utilities {
 		
 		return unique;
 	}
+	
+	public static Set<String> getSetDifference(Set<String> s1, Set<String> s2){
+		Set<String> intersection = new HashSet<String>();
+		intersection.addAll(s1);
+		intersection.retainAll(s2);
+		
+		Set<String> difference = new HashSet<String>();
+		difference.addAll(s1);
+		difference.addAll(s2);
+		difference.removeAll(intersection);
+		
+		return difference;
+	}
 }

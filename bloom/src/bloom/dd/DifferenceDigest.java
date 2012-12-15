@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import bloom.filters.InvertibleBloomFilter;
+import bloom.hash.Hash;
+import bloom.hash.HashPseudoRandom;
 
 public class DifferenceDigest {
 	//Enumeration of EstimatorType
@@ -15,15 +17,18 @@ public class DifferenceDigest {
 	//Constants
 	public static final EstimatorType ESTIMATOR_TYPE = EstimatorType.HYBRID;
 	public static final int HASH_COUNT = 4;
+	public static final double ALPHA = 1.5;
 	// Members
 	private Estimator estimator;
 	private Set<String> keys;
 	private EstimatorType estimatorType;
+	private Hash hash;
+	
 	/**
 	 * Default Constructor
 	 */
-	public DifferenceDigest(){
-		this(new HashSet<String>(),ESTIMATOR_TYPE);
+	public DifferenceDigest(Hash hash){
+		this(new HashSet<String>(),ESTIMATOR_TYPE, hash);
 	}
 	
 	/**
@@ -31,8 +36,8 @@ public class DifferenceDigest {
 	 *  
 	 * @param keys	Set of keys to initialize Difference Digest with
 	 */
-	public DifferenceDigest(Set<String> keys){
-		this(keys, ESTIMATOR_TYPE);
+	public DifferenceDigest(Set<String> keys, Hash hash){
+		this(keys, ESTIMATOR_TYPE, hash);
 	}
 	
 	/**
@@ -40,12 +45,13 @@ public class DifferenceDigest {
 	 *  
 	 * @param keys	Set of keys to initialize Difference Digest with
 	 */
-	public DifferenceDigest(Set<String> keys, EstimatorType type){
+	public DifferenceDigest(Set<String> keys, EstimatorType type, Hash hash){
 		this.keys = new HashSet<String>(keys);
+		this.hash = hash;
 		switch(type){
 			case STRATA:
 				//TODO: Modify constructor for new strata variable
-				estimator = new StrataEstimator(7, keys);
+				estimator = new StrataEstimator(StrataEstimator.STRATA, keys, StrataEstimator.IBFSIZE, StrataEstimator.HASH_COUNT, this.hash);
 				break;
 			case MINWISE:
 				estimator = new MinWiseEstimator(keys);
@@ -86,7 +92,7 @@ public class DifferenceDigest {
 	 */
 	public InvertibleBloomFilter getDifferenceIBF(Estimator estimator) throws Exception{
 		int d = this.estimator.estimateDifference(estimator);
-		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT,d,keys);
+		InvertibleBloomFilter ibf = new InvertibleBloomFilter(HASH_COUNT, (int) (d*ALPHA), new HashPseudoRandom(), this.keys);
 		return ibf;
 	}
 	
@@ -98,9 +104,15 @@ public class DifferenceDigest {
 	 * @return 		Returns a Set of string values representing SetB - SetA
 	 */
 	public Set<String> getSetDifference(InvertibleBloomFilter ibfB){
-		InvertibleBloomFilter ibfA = new InvertibleBloomFilter(HASH_COUNT,ibfB.getSize(),keys);
+		InvertibleBloomFilter ibfA = new InvertibleBloomFilter(ibfB.getHashCount(),ibfB.getSize(),ibfB.getHash(),keys);
 		
-		InvertibleBloomFilter diff = InvertibleBloomFilter.subtract(ibfB, ibfA);
+		InvertibleBloomFilter diff=null;
+		try {
+			diff = ibfA.subtract(ibfB);
+		} catch (Exception e) {
+			//Should not throw an error, because we are creating an IBF based on the parameters of ibfB which we are subtracting
+			e.printStackTrace();
+		}
 		
 		return diff.getPureKeys();
 	}
