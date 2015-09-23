@@ -1,6 +1,7 @@
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import org.junit.Test;
@@ -10,13 +11,13 @@ import bloom.hash.HashFunction;
 
 
 public class HashFunctionTest {
-//Constants	
+//Constants
 	private static final int M = 1000000;
 	private static final int m = 100;
 	private static final double ERROR = 0.05;
-	
+
 //Tests
-	
+
 	@Test
 	public void testIfFNV1HashIsDeterministic(){
 		for(int ii= 0; ii < M; ii++){
@@ -26,7 +27,7 @@ public class HashFunctionTest {
 			assertEquals(hash1, hash2);
 		}
 	}
-	
+
 	@Test
 	public void testIfMurmurHashIsDeterministic(){
 		for(int ii = 0; ii < M; ii++){
@@ -36,7 +37,7 @@ public class HashFunctionTest {
 			assertEquals(hash1, hash2);
 		}
 	}
-	
+
 	@Test
 	public void testUniformityOfMurmurHash(){
 		// Initialize array of buckets
@@ -59,7 +60,7 @@ public class HashFunctionTest {
 		}
 		System.out.print("\n");
 	}
-	
+
 	@Test
 	public void testUniformityOfFnv1Hash(){
 		int[] buckets = createFreqArray(m);
@@ -81,13 +82,13 @@ public class HashFunctionTest {
 		}
 		System.out.print("\n");
 	}
-	
+
 	@Test
 	public void testUniformityOf3Hashes(){
 		int k = 3;
 		kHashFunctions(k);
 	}
-	
+
 	@Test
 	public void testUniformityOf4Hashes(){
 		int k = 4;
@@ -101,8 +102,9 @@ public class HashFunctionTest {
 		HashFunction hash = new HashFunction();
 		for (int ii = 0; ii < M; ii++){
 			int[] hashes = hash.hash(UUID.randomUUID().toString().substring(0, 15), k, m);
-			for(int jj = 0; jj < hashes.length; jj++)
+			for(int jj = 0; jj < hashes.length; jj++) {
 				buckets[hashes[jj]] += 1;
+			}
 		}
 		float low = (float) ((M*k / buckets.length) * (1-ERROR));
 		float high = (float) ((M*k / buckets.length) * (1+ERROR));
@@ -115,12 +117,24 @@ public class HashFunctionTest {
 		}
 		System.out.print("\n");
 	}
-	
+
 	private int[] createFreqArray(int m) {
 		int[] buckets = new int[m];
-		for (int ii = 0; ii < m; ii++)
+		for (int ii = 0; ii < m; ii++) {
 			buckets[ii] = 0;
+		}
 		return buckets;
+	}
+
+	@Test
+	public void testHashesAreDistinct() {
+		int k = 4;
+		HashFunction hash = new HashFunction();
+
+		for (int ii = 0; ii < M; ii++ ) {
+			int[] hashes = hash.hash(UUID.randomUUID().toString().substring(0, 15), k, m);
+			assertEquals(k, Arrays.stream(hashes).distinct().count());
+		}
 	}
 
 }

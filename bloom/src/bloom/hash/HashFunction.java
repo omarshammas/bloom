@@ -12,9 +12,11 @@ public class HashFunction implements Hash {
 	
 	
 	public HashFunction(){}
-	
+
+	@Override
 	public void print() {}
-	
+
+	@Override
 	public int getHashCode(String key){
 		return 0;
 	}
@@ -44,25 +46,55 @@ public class HashFunction implements Hash {
 	}
 	
 	/**
-	 * Returns an array of k hashes by computing linear
-	 * combinations of the fnv1 hash with the MurmurHash
-	 * 
-	 * @param key	Key in which the hash will be performed on
-	 * @param k		Value specifying how many hash values to compute
-	 * @param m		Modulus value
-	 * @return		An array of size K with hash values [0, m-1]
+	 * Returns an array of k hashes by computing linear combinations of the fnv1 hash with the
+	 * MurmurHash
+	 *
+	 * @param key Key in which the hash will be performed on
+	 * @param k Value specifying how many hash values to compute
+	 * @param m Modulus value; m should be much larger than k
+	 * @return An array of size K with hash values [0, m-1]
 	 */
-	public int[] hash(String key,int k, int m){
+	@Override
+	public int[] hash(String key, int k, int m) {
 		int[] hashes = new int[k];
-		for(int ii = 0; ii < k; ii++){
-			long h1 = fnv1Hash(key);
-			long h2 = murmurHash(key);
-			long axb = h1+(ii*h2);
-			hashes[ii] = (int)(axb % m);
+		long h1 = fnv1Hash(key);
+		long h2 = murmurHash(key);
+		for (int ii = 0; ii < k; ii++ ) {
+			long axb = ii + h1 + (ii * h2);
+			int hashCandidate = (int) (axb % m);
+			int iterations = 0;
+			// Check that the generated hash candidate was not generated before.
+			while (iterations < m && contains(hashes, hashCandidate, ii)) {
+				// Try to find a new hash candidate that is not yet in the array.
+				hashCandidate = (int) ((hashCandidate + murmurHash(Integer.toString(iterations + hashCandidate))) % m);
+				iterations++ ;
+			}
+			if (iterations >= m) {
+				throw new RuntimeException("Failed to generate distinct hashes for: " + key);
+			}
+			hashes[ii] = hashCandidate;
 		}
 		return hashes;
 	}
-	
+
+	/**
+	 * Checks if a value is contained in an array.
+	 *
+	 * @param array The array to search in
+	 * @param valueToFind The value to find in the array
+	 * @param lastIndex The last index of the array that is checked
+	 * @return <code>true</code> if the value was found, <code>false</code> otherwise
+	 */
+	private static boolean contains(final int[] array, final int valueToFind, int lastIndex) {
+		lastIndex = Math.min(array.length, lastIndex);
+		for (int i = 0; i <= lastIndex; i++ ) {
+			if (valueToFind == array[i]) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Returns a single min wise independent hash value
 	 * using a linear transformation
@@ -136,13 +168,13 @@ public class HashFunction implements Hash {
 
 		if (left != 0) {
 			if (left >= 3) {
-				hash ^= (int) data[dataLength - 3] << 16;
+				hash ^= data[dataLength - 3] << 16;
 			}
 			if (left >= 2) {
-				hash ^= (int) data[dataLength - 2] << 8;
+				hash ^= data[dataLength - 2] << 8;
 			}
 			if (left >= 1) {
-				hash ^= (int) data[dataLength - 1];
+				hash ^= data[dataLength - 1];
 			}
 
 			hash *= m;
@@ -152,7 +184,7 @@ public class HashFunction implements Hash {
 		hash *= m;
 		hash ^= hash >>> 15;
 		
-		return (long)(hash & 0x00000000ffffffffL);
+		return (hash & 0x00000000ffffffffL);
 	}
 
 }
